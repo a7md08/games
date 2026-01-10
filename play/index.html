@@ -1,58 +1,117 @@
-!DOCTYPE html
-html lang=ar
-head
-    meta charset=UTF-8
-    meta name=viewport content=width=device-width, initial-scale=1.0
-    titleplay gamestitle
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>play games</title>
 
-    !-- favicon يد تحكم --
-    link rel=icon type=imagepng href=httpscdn-icons-png.flaticon.com512808808439.png
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/808/808439.png">
 
-    style
+    <style>
         html, body {
-            margin 0;
-            padding 0;
-            width 100%;
-            height 100%;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f172a;
+            font-family: Tahoma, Arial;
+            color: #fff;
         }
+
         iframe {
-            width 100%;
-            height 100%;
-            border none;
+            width: 100%;
+            height: 100%;
+            border: none;
         }
-    style
-head
-body
 
-iframe id=gameFrameiframe
+        .error-box {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
 
-script
-     رابط ملف JSON
-    const jsonUrl = games.json;  أو رابط مباشر
+        .error-card {
+            background: #020617;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(0,0,0,.5);
+            max-width: 400px;
+        }
 
-     قراءة id من الرابط
+        .error-card h1 {
+            font-size: 28px;
+            color: #38bdf8;
+            margin-bottom: 10px;
+        }
+
+        .error-card p {
+            opacity: .8;
+            margin-bottom: 20px;
+        }
+
+        .error-card span {
+            font-size: 50px;
+        }
+    </style>
+</head>
+<body>
+
+<iframe id="gameFrame"></iframe>
+
+<script>
+    /* ====== إعدادات ====== */
+    const jsonUrl = "games.json";
+
+    /* ====== قراءة ID ====== */
     const params = new URLSearchParams(window.location.search);
-    const id = params.get(id);
+    const id = params.get("id");
+
+    function showError(title, msg) {
+        document.body.innerHTML = `
+            <div class="error-box">
+                <div class="error-card">
+                    <span>🎮</span>
+                    <h1>${title}</h1>
+                    <p>${msg}</p>
+                </div>
+            </div>
+        `;
+    }
 
     if (!id) {
-        document.body.innerHTML = h2 style='text-aligncenter'أضف id=رقم_اللعبةh2;
+        showError("خطأ", "لم يتم تحديد رقم اللعبة");
     } else {
         fetch(jsonUrl)
-            .then(res = res.json())
-            .then(data = {
+            .then(res => res.json())
+            .then(data => {
                 if (data[id]) {
-                    document.getElementById(gameFrame).src = data[id];
+                    document.getElementById("gameFrame").src = data[id];
                 } else {
-                    document.body.innerHTML =
-                        h2 style='text-aligncenter'اللعبة غير موجودةh2;
+                    showError("غير موجودة", "هذه اللعبة غير مسجلة");
                 }
             })
-            .catch(() = {
-                document.body.innerHTML =
-                    h2 style='text-aligncenter'خطأ في تحميل ملف JSONh2;
+            .catch(() => {
+                showError("مشكلة", "تعذر تحميل ملف البيانات");
             });
     }
-script
 
-body
-html
+    /* ====== منع كليك يمين ====== */
+    document.addEventListener("contextmenu", e => e.preventDefault());
+
+    /* ====== منع الاختصارات ====== */
+    document.addEventListener("keydown", e => {
+        if (
+            e.key === "F12" ||
+            (e.ctrlKey && ["u", "s", "i", "j", "c"].includes(e.key.toLowerCase())) ||
+            (e.ctrlKey && e.shiftKey)
+        ) {
+            e.preventDefault();
+        }
+    });
+</script>
+
+</body>
+</html>
