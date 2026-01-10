@@ -17,20 +17,27 @@
             background: #0f172a;
             font-family: Tahoma, Arial;
             color: #fff;
+            overflow: hidden;
         }
 
+        /* iframe ثابت */
         iframe {
-            width: 100%;
-            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
             border: none;
+            background: #000;
         }
 
+        /* تصميم الخطأ */
         .error-box {
-            height: 100%;
+            position: fixed;
+            inset: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
         }
 
         .error-card {
@@ -39,17 +46,17 @@
             border-radius: 15px;
             box-shadow: 0 0 25px rgba(0,0,0,.5);
             max-width: 400px;
+            text-align: center;
         }
 
         .error-card h1 {
-            font-size: 28px;
+            font-size: 26px;
             color: #38bdf8;
             margin-bottom: 10px;
         }
 
         .error-card p {
             opacity: .8;
-            margin-bottom: 20px;
         }
 
         .error-card span {
@@ -62,14 +69,13 @@
 <iframe id="gameFrame"></iframe>
 
 <script>
-    /* ====== إعدادات ====== */
     const jsonUrl = "https://a7md08.github.io/games/g.json";
 
-    /* ====== قراءة ID ====== */
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
 
     function showError(title, msg) {
+        document.getElementById("gameFrame").remove();
         document.body.innerHTML = `
             <div class="error-box">
                 <div class="error-card">
@@ -85,7 +91,7 @@
         showError("خطأ", "لم يتم تحديد رقم اللعبة");
     } else {
         fetch(jsonUrl)
-            .then(res => res.json())
+            .then(r => r.json())
             .then(data => {
                 if (data[id]) {
                     document.getElementById("gameFrame").src = data[id];
@@ -98,14 +104,14 @@
             });
     }
 
-    /* ====== منع كليك يمين ====== */
+    /* منع كليك يمين */
     document.addEventListener("contextmenu", e => e.preventDefault());
 
-    /* ====== منع الاختصارات ====== */
+    /* منع الاختصارات */
     document.addEventListener("keydown", e => {
         if (
             e.key === "F12" ||
-            (e.ctrlKey && ["u", "s", "i", "j", "c"].includes(e.key.toLowerCase())) ||
+            (e.ctrlKey && ["u","s","i","j","c"].includes(e.key.toLowerCase())) ||
             (e.ctrlKey && e.shiftKey)
         ) {
             e.preventDefault();
