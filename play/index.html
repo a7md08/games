@@ -1,43 +1,58 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>play games</title>
+!DOCTYPE html
+html lang=ar
+head
+    meta charset=UTF-8
+    meta name=viewport content=width=device-width, initial-scale=1.0
+    titleplay gamestitle
 
-    <!-- صورة يد تحكم للتبويب -->
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/808/808439.png">
+    !-- favicon يد تحكم --
+    link rel=icon type=imagepng href=httpscdn-icons-png.flaticon.com512808808439.png
 
-    <style>
+    style
         html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
+            margin 0;
+            padding 0;
+            width 100%;
+            height 100%;
         }
         iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
+            width 100%;
+            height 100%;
+            border none;
         }
-    </style>
-</head>
-<body>
+    style
+head
+body
 
-<iframe id="gameFrame"></iframe>
+iframe id=gameFrameiframe
 
-<script>
+script
+     رابط ملف JSON
+    const jsonUrl = games.json;  أو رابط مباشر
+
+     قراءة id من الرابط
     const params = new URLSearchParams(window.location.search);
-    const path = params.get("path");
+    const id = params.get(id);
 
-    if (path) {
-        document.getElementById("gameFrame").src =
-            "https://a7md08.github.io/games/" + path;
+    if (!id) {
+        document.body.innerHTML = h2 style='text-aligncenter'أضف id=رقم_اللعبةh2;
     } else {
-        document.body.innerHTML =
-            "<h2 style='text-align:center'>أضف ?path=اسم_اللعبة إلى الرابط</h2>";
+        fetch(jsonUrl)
+            .then(res = res.json())
+            .then(data = {
+                if (data[id]) {
+                    document.getElementById(gameFrame).src = data[id];
+                } else {
+                    document.body.innerHTML =
+                        h2 style='text-aligncenter'اللعبة غير موجودةh2;
+                }
+            })
+            .catch(() = {
+                document.body.innerHTML =
+                    h2 style='text-aligncenter'خطأ في تحميل ملف JSONh2;
+            });
     }
-</script>
+script
 
-</body>
-</html>
+body
+html
