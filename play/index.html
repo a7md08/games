@@ -15,23 +15,19 @@
             width: 100%;
             height: 100%;
             background: #0f172a;
-            font-family: Tahoma, Arial;
-            color: #fff;
             overflow: hidden;
+            user-select: none;
         }
 
-        /* iframe ثابت */
         iframe {
             position: fixed;
-            top: 0;
-            left: 0;
+            inset: 0;
             width: 100vw;
             height: 100vh;
             border: none;
             background: #000;
         }
 
-        /* تصميم الخطأ */
         .error-box {
             position: fixed;
             inset: 0;
@@ -44,19 +40,15 @@
             background: #020617;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 0 25px rgba(0,0,0,.5);
-            max-width: 400px;
             text-align: center;
+            box-shadow: 0 0 30px rgba(0,0,0,.6);
+            max-width: 400px;
+            color: #fff;
         }
 
         .error-card h1 {
-            font-size: 26px;
             color: #38bdf8;
             margin-bottom: 10px;
-        }
-
-        .error-card p {
-            opacity: .8;
         }
 
         .error-card span {
@@ -69,17 +61,17 @@
 <iframe id="gameFrame"></iframe>
 
 <script>
+    /* ========= تحميل اللعبة من JSON ========= */
     const jsonUrl = "https://a7md08.github.io/games/g.json";
-
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(location.search);
     const id = params.get("id");
 
     function showError(title, msg) {
-        document.getElementById("gameFrame").remove();
+        document.getElementById("gameFrame")?.remove();
         document.body.innerHTML = `
             <div class="error-box">
                 <div class="error-card">
-                    <span>🎮</span>
+                    <span>🚫</span>
                     <h1>${title}</h1>
                     <p>${msg}</p>
                 </div>
@@ -96,25 +88,38 @@
                 if (data[id]) {
                     document.getElementById("gameFrame").src = data[id];
                 } else {
-                    showError("غير موجودة", "هذه اللعبة غير مسجلة");
+                    showError("غير موجودة", "اللعبة غير مسجلة");
                 }
             })
             .catch(() => {
-                showError("مشكلة", "تعذر تحميل ملف البيانات");
+                showError("مشكلة", "تعذر تحميل البيانات");
             });
     }
 
-    /* منع كليك يمين */
+    /* ========= الحماية ========= */
+
+    // منع كليك يمين
     document.addEventListener("contextmenu", e => e.preventDefault());
 
-    /* منع الاختصارات */
+    // منع تحديد النص
+    document.addEventListener("selectstart", e => e.preventDefault());
+
+    // منع السحب
+    document.addEventListener("dragstart", e => e.preventDefault());
+
+    // منع الاختصارات
     document.addEventListener("keydown", e => {
+        const blockedKeys = [
+            "F12", "F11", "F10"
+        ];
+
         if (
-            e.key === "F12" ||
-            (e.ctrlKey && ["u","s","i","j","c"].includes(e.key.toLowerCase())) ||
+            blockedKeys.includes(e.key) ||
+            (e.ctrlKey && ["u","s","c","x","v","a","p","i","j"].includes(e.key.toLowerCase())) ||
             (e.ctrlKey && e.shiftKey)
         ) {
             e.preventDefault();
+            e.stopPropagation();
         }
     });
 </script>
