@@ -1,4 +1,17 @@
 {
-  "13579": "https://www.onlinegames.io/games/2023/unity/madalin-stunt-cars-pro/index.html",
-  "13580": "https://ubgwtf.gitlab.io/armed-forces-io/"
+  "1": {
+    "name": "لعبة السباق",
+    "image": "https://example.com/images/race.png",
+    "url": "https://www.onlinegames.io/games/2023/unity/madalin-stunt-cars-pro/index.html"
+  },
+  "2": {
+    "name": "لعبة الحرب",
+    "image": "https://example.com/images/war.png",
+    "url": "https://ubgwtf.gitlab.io/armed-forces-io/"
+  },
+  "3": {
+    "name": "لعبة الذكاء",
+    "image": "https://example.com/images/puzzle.png",
+    "url": "https://example.com/games/puzzle"
+  }
 }
