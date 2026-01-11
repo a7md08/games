@@ -1,127 +1,176 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>play games</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Play Games</title>
 
-    <!-- favicon -->
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/808/808439.png">
+<!-- favicon -->
+<link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/808/808439.png">
 
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background: #0f172a;
-            overflow: hidden;
-            user-select: none;
-        }
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #0f172a;
+    overflow: hidden;
+    user-select: none;
+}
 
-        iframe {
-            position: fixed;
-            inset: 0;
-            width: 100vw;
-            height: 100vh;
-            border: none;
-            background: #000;
-        }
+iframe {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    border: none;
+    background: #000;
+    z-index: 1;
+}
 
-        .error-box {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+/* طبقة الحماية */
+#overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: transparent;
+}
 
-        .error-card {
-            background: #020617;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 0 30px rgba(0,0,0,.6);
-            max-width: 400px;
-            color: #fff;
-        }
+/* رسالة الخطأ */
+.error-box {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        .error-card h1 {
-            color: #38bdf8;
-            margin-bottom: 10px;
-        }
+.error-card {
+    background: #020617;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0,0,0,.6);
+    max-width: 400px;
+    color: #fff;
+}
 
-        .error-card span {
-            font-size: 50px;
-        }
-    </style>
+.error-card h1 {
+    color: #38bdf8;
+    margin-bottom: 10px;
+}
+
+.error-card span {
+    font-size: 50px;
+}
+</style>
 </head>
 <body>
 
 <iframe id="gameFrame"></iframe>
+<div id="overlay"></div>
 
 <script>
-    /* ========= تحميل اللعبة من JSON ========= */
-    const jsonUrl = "https://a7md08.github.io/games/g.json";
-    const params = new URLSearchParams(location.search);
-    const id = params.get("id");
+/* ========= تحميل اللعبة ========= */
+const jsonUrl = "https://a7md08.github.io/games/g.json";
+const params = new URLSearchParams(location.search);
+const id = params.get("id");
 
-    function showError(title, msg) {
-        document.getElementById("gameFrame")?.remove();
-        document.body.innerHTML = `
-            <div class="error-box">
-                <div class="error-card">
-                    <span>🚫</span>
-                    <h1>${title}</h1>
-                    <p>${msg}</p>
-                </div>
+function showError(title, msg) {
+    document.getElementById("gameFrame")?.remove();
+    document.getElementById("overlay")?.remove();
+    document.body.innerHTML = `
+        <div class="error-box">
+            <div class="error-card">
+                <span>🚫</span>
+                <h1>${title}</h1>
+                <p>${msg}</p>
             </div>
-        `;
+        </div>
+    `;
+}
+
+if (!id) {
+    showError("خطأ", "لم يتم تحديد رقم اللعبة");
+} else {
+    fetch(jsonUrl)
+        .then(r => r.json())
+        .then(data => {
+            if (data[id]) {
+                document.getElementById("gameFrame").src = data[id];
+            } else {
+                showError("غير موجودة", "اللعبة غير مسجلة");
+            }
+        })
+        .catch(() => {
+            showError("مشكلة", "تعذر تحميل البيانات");
+        });
+}
+
+/* ========= الحماية الكاملة ========= */
+
+// منع كليك يمين حتى داخل iframe
+document.addEventListener("contextmenu", e => {
+    e.preventDefault();
+    return false;
+});
+
+// منع كل الاختصارات
+document.addEventListener("keydown", e => {
+
+    // F1 - F12
+    if (/^F\d+$/.test(e.key)) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return false;
     }
 
-    if (!id) {
-        showError("خطأ", "لم يتم تحديد رقم اللعبة");
-    } else {
-        fetch(jsonUrl)
-            .then(r => r.json())
-            .then(data => {
-                if (data[id]) {
-                    document.getElementById("gameFrame").src = data[id];
-                } else {
-                    showError("غير موجودة", "اللعبة غير مسجلة");
-                }
-            })
-            .catch(() => {
-                showError("مشكلة", "تعذر تحميل البيانات");
-            });
+    // أي زر مع Ctrl / Alt / Shift / Meta
+    if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return false;
     }
 
-    /* ========= الحماية ========= */
+    // أزرار خطيرة
+    const blocked = [
+        "Escape","Tab","PrintScreen","Pause",
+        "Insert","Delete","Home","End",
+        "PageUp","PageDown"
+    ];
 
-    // منع كليك يمين
-    document.addEventListener("contextmenu", e => e.preventDefault());
+    if (blocked.includes(e.key)) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return false;
+    }
+}, true);
 
-    // منع تحديد النص
-    document.addEventListener("selectstart", e => e.preventDefault());
-
-    // منع السحب
-    document.addEventListener("dragstart", e => e.preventDefault());
-
-    // منع الاختصارات
-    document.addEventListener("keydown", e => {
-        const blockedKeys = [
-            "F12", "F11", "F10"
-        ];
-
-        if (
-            blockedKeys.includes(e.key) ||
-            (e.ctrlKey && ["u","s","c","x","v","a","p","i","j"].includes(e.key.toLowerCase())) ||
-            (e.ctrlKey && e.shiftKey)
-        ) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
+// منع النسخ واللصق والقص
+["copy","cut","paste"].forEach(ev => {
+    document.addEventListener(ev, e => {
+        e.preventDefault();
+        return false;
     });
+});
+
+// منع التحديد والسحب
+["selectstart","dragstart"].forEach(ev => {
+    document.addEventListener(ev, e => {
+        e.preventDefault();
+        return false;
+    });
+});
+
+// منع زر الماوس الأيمن من الطبقة
+const overlay = document.getElementById("overlay");
+overlay.addEventListener("mousedown", e => {
+    if (e.button !== 0) {
+        e.preventDefault();
+        return false;
+    }
+});
 </script>
 
 </body>
