@@ -59,11 +59,11 @@
 
 <!-- شاشة اسم + صورة اللعبة -->
 <div id="loader">
-    <img id="gameImg" alt="game">
+    <img id="gameImg" alt="game" src="https://cdn-icons-png.flaticon.com/512/808/808439.png">
     <h2 id="gameName">Loading...</h2>
 </div>
 
-<!-- اللعبة -->
+<!-- اللعبة / iframe -->
 <iframe id="gameFrame"></iframe>
 
 <script>
@@ -78,31 +78,33 @@
     const gameImgEl = document.getElementById("gameImg");
     const favicon = document.getElementById("favicon");
 
-    /* لا يوجد ID */
     if (!id) {
-        location.replace("https://a7md08.github.io/games/");
+        // لا يوجد id، نعرض صفحة الألعاب الافتراضية داخل iframe
+        frame.src = "https://a7md08.github.io/games/";
+        loader.style.display = "none"; // إخفاء شاشة التحميل
     } else {
         fetch(jsonUrl)
             .then(res => res.json())
             .then(data => {
                 if (!data[id]) {
-                    location.replace("https://a7md08.github.io/");
+                    // id غير موجود في JSON
+                    location.replace("https://gam.gt.tc/");
                     return;
                 }
 
                 const game = data[id];
 
-                /* العنوان */
+                // تحديث العنوان
                 document.title = game.name + " | play games";
 
-                /* اسم وصورة شاشة التحميل */
+                // تحديث صورة واسم اللعبة في شاشة التحميل
                 gameNameEl.textContent = game.name;
                 gameImgEl.src = game.image;
 
-                /* صورة التبويبة */
+                // تغيير favicon
                 favicon.href = game.image;
 
-                /* تشغيل اللعبة */
+                // تشغيل اللعبة داخل iframe
                 frame.src = game.url;
 
                 frame.onload = () => {
@@ -110,14 +112,15 @@
                 };
             })
             .catch(() => {
-                location.replace("https://a7md08.github.io/");
+                // خطأ في تحميل JSON
+                location.replace("https://gam.gt.tc/");
             });
     }
 
-    /* منع كليك يمين */
+    // منع كليك يمين
     document.addEventListener("contextmenu", e => e.preventDefault());
 
-    /* منع الاختصارات */
+    // منع اختصارات DevTools
     document.addEventListener("keydown", e => {
         if (
             e.key === "F12" ||
@@ -128,7 +131,7 @@
         }
     });
 
-    /* منع اللمس */
+    // منع التمرير باللمس
     document.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
 </script>
 
