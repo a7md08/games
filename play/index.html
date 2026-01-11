@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Play Games</title>
 
-<!-- favicon -->
 <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/808/808439.png">
 
 <style>
@@ -26,50 +25,34 @@ iframe {
     height: 100vh;
     border: none;
     background: #000;
-    z-index: 1;
 }
 
-/* طبقة الحماية */
-#overlay {
+/* شاشة البداية */
+#startScreen {
     position: fixed;
     inset: 0;
-    z-index: 9999;
-    background: transparent;
-}
-
-/* رسالة الخطأ */
-.error-box {
-    position: fixed;
-    inset: 0;
+    background: #020617;
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 9999;
+    font-size: 24px;
+    cursor: pointer;
 }
 
-.error-card {
-    background: #020617;
-    padding: 30px;
-    border-radius: 15px;
-    text-align: center;
-    box-shadow: 0 0 30px rgba(0,0,0,.6);
-    max-width: 400px;
-    color: #fff;
-}
-
-.error-card h1 {
+#startScreen span {
     color: #38bdf8;
-    margin-bottom: 10px;
-}
-
-.error-card span {
-    font-size: 50px;
 }
 </style>
 </head>
 <body>
 
+<div id="startScreen">
+    اضغط في أي مكان لبدء اللعب <span>⛶</span>
+</div>
+
 <iframe id="gameFrame"></iframe>
-<div id="overlay"></div>
 
 <script>
 /* ========= تحميل اللعبة ========= */
@@ -78,13 +61,13 @@ const params = new URLSearchParams(location.search);
 const id = params.get("id");
 
 function showError(title, msg) {
-    document.getElementById("gameFrame")?.remove();
-    document.getElementById("overlay")?.remove();
     document.body.innerHTML = `
-        <div class="error-box">
-            <div class="error-card">
-                <span>🚫</span>
-                <h1>${title}</h1>
+        <div style="
+            position:fixed;inset:0;
+            display:flex;align-items:center;justify-content:center;
+            background:#020617;color:#fff;text-align:center">
+            <div>
+                <h1 style="color:#38bdf8">🚫 ${title}</h1>
                 <p>${msg}</p>
             </div>
         </div>
@@ -108,15 +91,30 @@ if (!id) {
         });
 }
 
-/* ========= الحماية الكاملة ========= */
+/* ========= Fullscreen عند أول نقرة ========= */
+const startScreen = document.getElementById("startScreen");
 
-// منع كليك يمين حتى داخل iframe
+function openFullscreen() {
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    else if (el.msRequestFullscreen) el.msRequestFullscreen();
+}
+
+startScreen.addEventListener("click", () => {
+    openFullscreen();
+    startScreen.remove();
+});
+
+/* ========= الحماية ========= */
+
+// منع كليك يمين
 document.addEventListener("contextmenu", e => {
     e.preventDefault();
     return false;
 });
 
-// منع كل الاختصارات
+// منع جميع الاختصارات
 document.addEventListener("keydown", e => {
 
     // F1 - F12
@@ -133,7 +131,7 @@ document.addEventListener("keydown", e => {
         return false;
     }
 
-    // أزرار خطيرة
+    // أزرار إضافية
     const blocked = [
         "Escape","Tab","PrintScreen","Pause",
         "Insert","Delete","Home","End",
@@ -147,7 +145,7 @@ document.addEventListener("keydown", e => {
     }
 }, true);
 
-// منع النسخ واللصق والقص
+// منع النسخ / اللصق / القص
 ["copy","cut","paste"].forEach(ev => {
     document.addEventListener(ev, e => {
         e.preventDefault();
@@ -161,15 +159,6 @@ document.addEventListener("keydown", e => {
         e.preventDefault();
         return false;
     });
-});
-
-// منع زر الماوس الأيمن من الطبقة
-const overlay = document.getElementById("overlay");
-overlay.addEventListener("mousedown", e => {
-    if (e.button !== 0) {
-        e.preventDefault();
-        return false;
-    }
 });
 </script>
 
