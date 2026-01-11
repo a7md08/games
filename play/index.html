@@ -18,17 +18,27 @@
             font-family: Tahoma, Arial;
             color: #fff;
             overflow: hidden;
+            touch-action: none;
         }
 
-        /* iframe ثابت */
+        /* طبقة قفل الصفحة */
+        #pageLock {
+            position: fixed;
+            inset: 0;
+            background: transparent;
+            z-index: 1;
+            pointer-events: all;
+        }
+
+        /* iframe */
         iframe {
             position: fixed;
-            top: 0;
-            left: 0;
+            inset: 0;
             width: 100vw;
             height: 100vh;
             border: none;
             background: #000;
+            z-index: 9999;
         }
 
         /* تصميم الخطأ */
@@ -38,6 +48,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 10000;
         }
 
         .error-card {
@@ -66,6 +77,10 @@
 </head>
 <body>
 
+<!-- قفل الصفحة -->
+<div id="pageLock"></div>
+
+<!-- اللعبة -->
 <iframe id="gameFrame"></iframe>
 
 <script>
@@ -75,7 +90,9 @@
     const id = params.get("id");
 
     function showError(title, msg) {
-        document.getElementById("gameFrame").remove();
+        document.getElementById("gameFrame")?.remove();
+        document.getElementById("pageLock")?.remove();
+
         document.body.innerHTML = `
             <div class="error-box">
                 <div class="error-card">
@@ -117,6 +134,9 @@
             e.preventDefault();
         }
     });
+
+    /* منع اللمس والتمرير */
+    document.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
 </script>
 
 </body>
