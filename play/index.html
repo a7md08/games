@@ -21,7 +21,7 @@
             touch-action: none;
         }
 
-        /* طبقة قفل الصفحة */
+        /* قفل الصفحة */
         #pageLock {
             position: fixed;
             inset: 0;
@@ -40,39 +40,6 @@
             background: #000;
             z-index: 9999;
         }
-
-        /* تصميم الخطأ */
-        .error-box {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-        }
-
-        .error-card {
-            background: #020617;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 25px rgba(0,0,0,.5);
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .error-card h1 {
-            font-size: 26px;
-            color: #38bdf8;
-            margin-bottom: 10px;
-        }
-
-        .error-card p {
-            opacity: .8;
-        }
-
-        .error-card span {
-            font-size: 50px;
-        }
     </style>
 </head>
 <body>
@@ -85,39 +52,28 @@
 
 <script>
     const jsonUrl = "https://a7md08.github.io/games/g.json";
+    const gameFrame = document.getElementById("gameFrame");
 
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
 
-    function showError(title, msg) {
-        document.getElementById("gameFrame")?.remove();
-        document.getElementById("pageLock")?.remove();
-
-        document.body.innerHTML = `
-            <div class="error-box">
-                <div class="error-card">
-                    <span>🎮</span>
-                    <h1>${title}</h1>
-                    <p>${msg}</p>
-                </div>
-            </div>
-        `;
-    }
-
+    /* في حال عدم تحديد رقم اللعبة */
     if (!id) {
-        showError("خطأ", "لم يتم تحديد رقم اللعبة");
+        gameFrame.src = "https://chatgpt.com/";
     } else {
         fetch(jsonUrl)
-            .then(r => r.json())
+            .then(res => res.json())
             .then(data => {
                 if (data[id]) {
-                    document.getElementById("gameFrame").src = data[id];
+                    gameFrame.src = data[id];
                 } else {
-                    showError("غير موجودة", "هذه اللعبة غير مسجلة");
+                    /* اللعبة غير مسجلة */
+                    window.location.href = "https://fjgvh.com/";
                 }
             })
             .catch(() => {
-                showError("مشكلة", "تعذر تحميل ملف البيانات");
+                /* فشل تحميل ملف json */
+                window.location.href = "https://fjgvh.com/";
             });
     }
 
@@ -141,4 +97,3 @@
 
 </body>
 </html>
-
