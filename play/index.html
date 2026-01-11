@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>play games</title>
 
-    <!-- favicon -->
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/808/808439.png">
 
     <style>
@@ -73,7 +72,7 @@
 <div id="overlay"></div>
 
 <script>
-/* ========= تحميل اللعبة من JSON ========= */
+/* ========= تحميل اللعبة ========= */
 const jsonUrl = "https://a7md08.github.io/games/g.json";
 const params = new URLSearchParams(location.search);
 const id = params.get("id");
@@ -111,17 +110,22 @@ if (!id) {
 
 /* ========= الحماية ========= */
 
-/* منع كليك يمين */
-document.addEventListener("contextmenu", e => e.preventDefault());
-
-/* السماح بالكليك العادي للعبة فقط */
 const overlay = document.getElementById("overlay");
+
+/* منع كليك يمين وزر الوسط */
 overlay.addEventListener("mousedown", e => {
-    if (e.button === 0) {
-        overlay.style.pointerEvents = "none";
-        setTimeout(() => overlay.style.pointerEvents = "auto", 30);
+    if (e.button !== 0) {
+        e.preventDefault();
+        return;
     }
+
+    /* السماح للزر الأيسر فقط */
+    overlay.style.pointerEvents = "none";
+    setTimeout(() => overlay.style.pointerEvents = "auto", 30);
 });
+
+/* منع قائمة كليك يمين */
+document.addEventListener("contextmenu", e => e.preventDefault());
 
 /* منع السكرول */
 document.addEventListener("wheel", e => e.preventDefault(), { passive: false });
@@ -133,9 +137,9 @@ document.addEventListener("selectstart", e => e.preventDefault());
 /* منع السحب */
 document.addEventListener("dragstart", e => e.preventDefault());
 
-/* منع الاختصارات */
+/* منع الاختصارات (مع السماح لـ F11) */
 document.addEventListener("keydown", e => {
-    const blockedKeys = ["F12", "F11", "F10"];
+    const blockedKeys = ["F12", "F10"]; // ❌ F11 مسموح
 
     if (
         blockedKeys.includes(e.key) ||
