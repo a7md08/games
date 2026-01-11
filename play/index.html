@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>play games</title>
 
-    <!-- favicon -->
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/808/808439.png">
+    <!-- favicon (يتغير ديناميكيًا) -->
+    <link id="favicon" rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/808/808439.png">
 
     <style>
         html, body {
@@ -20,6 +20,30 @@
             touch-action: none;
         }
 
+        /* شاشة التحميل */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #020617;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        #loader img {
+            width: 160px;
+            border-radius: 18px;
+            margin-bottom: 15px;
+        }
+
+        #loader h2 {
+            margin: 0;
+            font-size: 22px;
+            color: #38bdf8;
+        }
+
         iframe {
             position: fixed;
             inset: 0;
@@ -27,36 +51,65 @@
             height: 100vh;
             border: none;
             background: #000;
+            z-index: 1;
         }
     </style>
 </head>
 <body>
 
+<!-- شاشة اسم + صورة اللعبة -->
+<div id="loader">
+    <img id="gameImg" alt="game">
+    <h2 id="gameName">Loading...</h2>
+</div>
+
+<!-- اللعبة -->
 <iframe id="gameFrame"></iframe>
 
 <script>
     const jsonUrl = "https://a7md08.github.io/games/g.json";
-    const gameFrame = document.getElementById("gameFrame");
 
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
 
-    /* عدم وجود رقم لعبة → تحويل مباشر بدون رجوع */
+    const frame = document.getElementById("gameFrame");
+    const loader = document.getElementById("loader");
+    const gameNameEl = document.getElementById("gameName");
+    const gameImgEl = document.getElementById("gameImg");
+    const favicon = document.getElementById("favicon");
+
+    /* لا يوجد ID */
     if (!id) {
         location.replace("https://chatgpt.com/");
     } else {
         fetch(jsonUrl)
             .then(res => res.json())
             .then(data => {
-                if (data[id]) {
-                    gameFrame.src = data[id];
-                } else {
-                    /* لعبة غير مسجلة → تحويل مباشر */
+                if (!data[id]) {
                     location.replace("https://fjgvh.com/");
+                    return;
                 }
+
+                const game = data[id];
+
+                /* العنوان */
+                document.title = game.name + " | play games";
+
+                /* اسم وصورة شاشة التحميل */
+                gameNameEl.textContent = game.name;
+                gameImgEl.src = game.image;
+
+                /* صورة التبويبة */
+                favicon.href = game.image;
+
+                /* تشغيل اللعبة */
+                frame.src = game.url;
+
+                frame.onload = () => {
+                    loader.style.display = "none";
+                };
             })
             .catch(() => {
-                /* فشل تحميل json → تحويل مباشر */
                 location.replace("https://fjgvh.com/");
             });
     }
