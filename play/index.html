@@ -27,30 +27,36 @@ iframe {
     background: #000;
 }
 
-/* شاشة البداية */
-#startScreen {
+/* رسالة الخطأ */
+.error-box {
     position: fixed;
     inset: 0;
-    background: #020617;
-    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 9999;
-    font-size: 24px;
-    cursor: pointer;
 }
 
-#startScreen span {
+.error-card {
+    background: #020617;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0,0,0,.6);
+    max-width: 400px;
+    color: #fff;
+}
+
+.error-card h1 {
     color: #38bdf8;
+    margin-bottom: 10px;
+}
+
+.error-card span {
+    font-size: 50px;
 }
 </style>
 </head>
 <body>
-
-<div id="startScreen">
-    اضغط في أي مكان لبدء اللعب <span>⛶</span>
-</div>
 
 <iframe id="gameFrame"></iframe>
 
@@ -61,13 +67,12 @@ const params = new URLSearchParams(location.search);
 const id = params.get("id");
 
 function showError(title, msg) {
+    document.getElementById("gameFrame")?.remove();
     document.body.innerHTML = `
-        <div style="
-            position:fixed;inset:0;
-            display:flex;align-items:center;justify-content:center;
-            background:#020617;color:#fff;text-align:center">
-            <div>
-                <h1 style="color:#38bdf8">🚫 ${title}</h1>
+        <div class="error-box">
+            <div class="error-card">
+                <span>🚫</span>
+                <h1>${title}</h1>
                 <p>${msg}</p>
             </div>
         </div>
@@ -91,20 +96,22 @@ if (!id) {
         });
 }
 
-/* ========= Fullscreen عند أول نقرة ========= */
-const startScreen = document.getElementById("startScreen");
+/* ========= Fullscreen عند أول نقرة فقط ========= */
+let fullscreenOpened = false;
 
-function openFullscreen() {
+function openFullscreenOnce() {
+    if (fullscreenOpened) return;
+    fullscreenOpened = true;
+
     const el = document.documentElement;
     if (el.requestFullscreen) el.requestFullscreen();
     else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
     else if (el.msRequestFullscreen) el.msRequestFullscreen();
+
+    document.removeEventListener("click", openFullscreenOnce, true);
 }
 
-startScreen.addEventListener("click", () => {
-    openFullscreen();
-    startScreen.remove();
-});
+document.addEventListener("click", openFullscreenOnce, true);
 
 /* ========= الحماية ========= */
 
