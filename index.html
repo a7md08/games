@@ -80,13 +80,13 @@
     const search = document.getElementById('search');
     let gamesData = [];
 
-    // 🔗 حط رابط ملف الـ JSON هنا
+    // رابط ملف الـ JSON
     const JSON_URL = 'https://a7md08.github.io/games/g.json';
 
     fetch(JSON_URL)
       .then(res => res.json())
       .then(data => {
-        // نستخدم مفتاح الكائن (مثل 13579) كـ ID
+        // تحويل البيانات إلى مصفوفة
         gamesData = Object.entries(data).map(([id, game]) => ({
           id: id,
           name: game.name,
@@ -106,8 +106,10 @@
         const div = document.createElement('div');
         div.className = 'game';
         div.setAttribute('data-name', game.name);
+
+        // التحويل إلى رابط كامل
         div.onclick = () => {
-          window.location.href = `/?id=${game.id}`;
+          window.location.href = `https://zuis.gt.tc/?id=${game.id}`;
         };
 
         div.innerHTML = `
