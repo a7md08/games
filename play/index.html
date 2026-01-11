@@ -1,118 +1,122 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>play games</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>play games</title>
 
-<link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/808/808439.png">
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/808/808439.png">
 
-<style>
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    background: #0f172a;
-    overflow: hidden;
-    user-select: none;
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f172a;
+            font-family: Tahoma, Arial;
+            color: #fff;
+            overflow: hidden;
+        }
 
-    /* قفل الصفحة */
-    pointer-events: none;
-}
+        /* iframe ثابت */
+        iframe {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            background: #000;
+        }
 
-/* السماح بالتفاعل داخل الإطار فقط */
-iframe {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    border: none;
-    background: #000;
-    pointer-events: auto;
-}
-</style>
+        /* تصميم الخطأ */
+        .error-box {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .error-card {
+            background: #020617;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(0,0,0,.5);
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .error-card h1 {
+            font-size: 26px;
+            color: #38bdf8;
+            margin-bottom: 10px;
+        }
+
+        .error-card p {
+            opacity: .8;
+        }
+
+        .error-card span {
+            font-size: 50px;
+        }
+    </style>
 </head>
-
 <body>
 
 <iframe id="gameFrame"></iframe>
 
 <script>
-/* ========= تحميل اللعبة ========= */
-const jsonUrl = "https://a7md08.github.io/games/g.json";
-const params = new URLSearchParams(location.search);
-const id = params.get("id");
+    const jsonUrl = "games.json";
 
-function showError(title, msg) {
-    document.body.innerHTML = `
-        <div style="
-            position:fixed; inset:0;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            background:#020617;
-            color:white;
-            font-family:sans-serif;
-            text-align:center;
-            pointer-events:auto">
-            <div>
-                <div style="font-size:50px">🚫</div>
-                <h1 style="color:#38bdf8">${title}</h1>
-                <p>${msg}</p>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+
+    function showError(title, msg) {
+        document.getElementById("gameFrame").remove();
+        document.body.innerHTML = `
+            <div class="error-box">
+                <div class="error-card">
+                    <span>🎮</span>
+                    <h1>${title}</h1>
+                    <p>${msg}</p>
+                </div>
             </div>
-        </div>
-    `;
-}
-
-if (!id) {
-    showError("خطأ", "لم يتم تحديد رقم اللعبة");
-} else {
-    fetch(jsonUrl)
-        .then(r => r.json())
-        .then(data => {
-            if (data[id]) {
-                gameFrame.src = data[id];
-            } else {
-                showError("غير موجودة", "اللعبة غير مسجلة");
-            }
-        })
-        .catch(() => showError("مشكلة", "تعذر تحميل البيانات"));
-}
-
-/* ========= المنع والحماية ========= */
-
-/* منع كليك يمين */
-document.addEventListener("contextmenu", e => e.preventDefault());
-
-/* منع زر الوسط */
-document.addEventListener("mousedown", e => {
-    if (e.button !== 0) e.preventDefault();
-});
-
-/* منع السكرول */
-document.addEventListener("wheel", e => e.preventDefault(), { passive: false });
-document.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
-
-/* منع التحديد والسحب */
-document.addEventListener("selectstart", e => e.preventDefault());
-document.addEventListener("dragstart", e => e.preventDefault());
-
-/* منع الاختصارات (السماح بـ F11 فقط) */
-document.addEventListener("keydown", e => {
-
-    if (e.key === "F11") return;
-
-    const blocked =
-        e.key === "F12" ||
-        (e.ctrlKey && ["u","s","c","x","v","a","p","i","j"].includes(e.key.toLowerCase())) ||
-        (e.ctrlKey && e.shiftKey);
-
-    if (blocked) {
-        e.preventDefault();
-        e.stopPropagation();
+        `;
     }
-});
+
+    if (!id) {
+        showError("خطأ", "لم يتم تحديد رقم اللعبة");
+    } else {
+        fetch(jsonUrl)
+            .then(r => r.json())
+            .then(data => {
+                if (data[id]) {
+                    document.getElementById("gameFrame").src = data[id];
+                } else {
+                    showError("غير موجودة", "هذه اللعبة غير مسجلة");
+                }
+            })
+            .catch(() => {
+                showError("مشكلة", "تعذر تحميل ملف البيانات");
+            });
+    }
+
+    /* منع كليك يمين */
+    document.addEventListener("contextmenu", e => e.preventDefault());
+
+    /* منع الاختصارات */
+    document.addEventListener("keydown", e => {
+        if (
+            e.key === "F12" ||
+            (e.ctrlKey && ["u","s","i","j","c"].includes(e.key.toLowerCase())) ||
+            (e.ctrlKey && e.shiftKey)
+        ) {
+            e.preventDefault();
+        }
+    });
 </script>
 
 </body>
