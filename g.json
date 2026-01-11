@@ -1,17 +1,12 @@
 {
-  "1": {
-    "name": "لعبة السباق",
-    "image": "https://example.com/images/race.png",
-    "url": "https://www.onlinegames.io/games/2023/unity/madalin-stunt-cars-pro/index.html"
-  },
-  "2": {
-    "name": "لعبة الحرب",
-    "image": "https://example.com/images/war.png",
+  "13579": {
+    "name": "Armed Forces",
+    "image": "https://pub-c77eb84ebd5c408aa81bb7f3302cac57.r2.dev/attached_assets/game_icons/Armed%20Forces.webp",
     "url": "https://ubgwtf.gitlab.io/armed-forces-io/"
   },
-  "3": {
-    "name": "لعبة الذكاء",
-    "image": "https://example.com/images/puzzle.png",
-    "url": "https://example.com/games/puzzle"
+  "13580": {
+    "name": "Subway Surfers",
+    "image": "https://pub-c77eb84ebd5c408aa81bb7f3302cac57.r2.dev/attached_assets/game_icons/Subway%20Surfers.webp",
+    "url": "https://lnahtml.github.io/a8/subway-surfers-newyork/"
   }
 }
