@@ -21,7 +21,7 @@
             touch-action: none;
         }
 
-        /* طبقة قفل الصفحة */
+        /* قفل الصفحة */
         #pageLock {
             position: fixed;
             inset: 0;
@@ -41,7 +41,7 @@
             z-index: 9999;
         }
 
-        /* تصميم الخطأ */
+        /* صندوق الخطأ */
         .error-box {
             position: fixed;
             inset: 0;
@@ -77,66 +77,106 @@
 </head>
 <body>
 
-<!-- قفل الصفحة -->
 <div id="pageLock"></div>
-
-<!-- اللعبة -->
 <iframe id="gameFrame"></iframe>
 
 <script>
-    const jsonUrl = "https://a7md08.github.io/games/g.json";
+/* ================== تحميل اللعبة ================== */
+const jsonUrl = "https://a7md08.github.io/games/g.json";
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
 
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get("id");
+function showError(title, msg) {
+    document.getElementById("gameFrame")?.remove();
+    document.getElementById("pageLock")?.remove();
 
-    function showError(title, msg) {
-        document.getElementById("gameFrame")?.remove();
-        document.getElementById("pageLock")?.remove();
-
-        document.body.innerHTML = `
-            <div class="error-box">
-                <div class="error-card">
-                    <span>🎮</span>
-                    <h1>${title}</h1>
-                    <p>${msg}</p>
-                </div>
+    document.body.innerHTML = `
+        <div class="error-box">
+            <div class="error-card">
+                <span>🎮</span>
+                <h1>${title}</h1>
+                <p>${msg}</p>
             </div>
-        `;
+        </div>
+    `;
+}
+
+if (!id) {
+    showError("خطأ", "لم يتم تحديد رقم اللعبة");
+} else {
+    fetch(jsonUrl)
+        .then(r => r.json())
+        .then(data => {
+            if (data[id]) {
+                document.getElementById("gameFrame").src = data[id];
+            } else {
+                showError("غير موجودة", "هذه اللعبة غير مسجلة");
+            }
+        })
+        .catch(() => {
+            showError("مشكلة", "تعذر تحميل ملف البيانات");
+        });
+}
+
+/* ================== الحماية ================== */
+
+/* منع كليك يمين */
+document.addEventListener("contextmenu", e => {
+    e.preventDefault();
+    return false;
+});
+
+/* منع F12 والاختصارات */
+function blockKeys(e) {
+    if (
+        e.keyCode === 123 || // F12
+        (e.ctrlKey && e.shiftKey && ["I","J","C"].includes(e.key.toUpperCase())) ||
+        (e.ctrlKey && ["U","S"].includes(e.key.toUpperCase()))
+    ) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
     }
+}
+document.addEventListener("keydown", blockKeys, true);
+document.addEventListener("keyup", blockKeys, true);
 
-    if (!id) {
-        showError("خطأ", "لم يتم تحديد رقم اللعبة");
-    } else {
-        fetch(jsonUrl)
-            .then(r => r.json())
-            .then(data => {
-                if (data[id]) {
-                    document.getElementById("gameFrame").src = data[id];
-                } else {
-                    showError("غير موجودة", "هذه اللعبة غير مسجلة");
-                }
-            })
-            .catch(() => {
-                showError("مشكلة", "تعذر تحميل ملف البيانات");
-            });
-    }
+/* منع التمرير واللمس */
+document.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
+document.addEventListener("wheel", e => e.preventDefault(), { passive: false });
 
-    /* منع كليك يمين */
-    document.addEventListener("contextmenu", e => e.preventDefault());
+/* كشف فتح DevTools */
+let devtoolsOpen = false;
+const threshold = 160;
 
-    /* منع الاختصارات */
-    document.addEventListener("keydown", e => {
-        if (
-            e.key === "F12" ||
-            (e.ctrlKey && ["u","s","i","j","c"].includes(e.key.toLowerCase())) ||
-            (e.ctrlKey && e.shiftKey)
-        ) {
-            e.preventDefault();
+setInterval(() => {
+    if (
+        window.outerWidth - window.innerWidth > threshold ||
+        window.outerHeight - window.innerHeight > threshold
+    ) {
+        if (!devtoolsOpen) {
+            devtoolsOpen = true;
+            document.body.innerHTML = `
+                <div style="
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    height:100vh;
+                    background:#020617;
+                    color:#38bdf8;
+                    font-family:Tahoma;
+                    text-align:center">
+                    <div>
+                        <h1>🚫 تم الحظر</h1>
+                        <p>تم اكتشاف أدوات المطوّر</p>
+                    </div>
+                </div>
+            `;
         }
-    });
-
-    /* منع اللمس والتمرير */
-    document.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
+    } else {
+        devtoolsOpen = false;
+    }
+}, 500);
 </script>
 
 </body>
