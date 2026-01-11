@@ -16,21 +16,10 @@
             height: 100%;
             background: #0f172a;
             font-family: Tahoma, Arial;
-            color: #fff;
             overflow: hidden;
             touch-action: none;
         }
 
-        /* قفل الصفحة */
-        #pageLock {
-            position: fixed;
-            inset: 0;
-            background: transparent;
-            z-index: 1;
-            pointer-events: all;
-        }
-
-        /* iframe */
         iframe {
             position: fixed;
             inset: 0;
@@ -38,16 +27,11 @@
             height: 100vh;
             border: none;
             background: #000;
-            z-index: 9999;
         }
     </style>
 </head>
 <body>
 
-<!-- قفل الصفحة -->
-<div id="pageLock"></div>
-
-<!-- اللعبة -->
 <iframe id="gameFrame"></iframe>
 
 <script>
@@ -57,9 +41,9 @@
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
 
-    /* في حال عدم تحديد رقم اللعبة */
+    /* عدم وجود رقم لعبة → تحويل مباشر بدون رجوع */
     if (!id) {
-        gameFrame.src = "https://chatgpt.com/";
+        location.replace("https://chatgpt.com/");
     } else {
         fetch(jsonUrl)
             .then(res => res.json())
@@ -67,13 +51,13 @@
                 if (data[id]) {
                     gameFrame.src = data[id];
                 } else {
-                    /* اللعبة غير مسجلة */
-                    window.location.href = "https://fjgvh.com/";
+                    /* لعبة غير مسجلة → تحويل مباشر */
+                    location.replace("https://fjgvh.com/");
                 }
             })
             .catch(() => {
-                /* فشل تحميل ملف json */
-                window.location.href = "https://fjgvh.com/";
+                /* فشل تحميل json → تحويل مباشر */
+                location.replace("https://fjgvh.com/");
             });
     }
 
@@ -91,7 +75,7 @@
         }
     });
 
-    /* منع اللمس والتمرير */
+    /* منع اللمس */
     document.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
 </script>
 
