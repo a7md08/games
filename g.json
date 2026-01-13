@@ -88,5 +88,10 @@
     "name": "Ev.io",
     "image": "https://pub-c77eb84ebd5c408aa81bb7f3302cac57.r2.dev/attached_assets/game_icons/Ev.io.webp",
     "url": "https://ev.io/"
+  },
+  "73424": {
+    "name": "Drift Hunters",
+    "image": "https://pub-c77eb84ebd5c408aa81bb7f3302cac57.r2.dev/attached_assets/game_icons/DriftHunters.webp",
+    "url": "https://htmlxm.github.io/h/drift-hunters/"
   }
 }
