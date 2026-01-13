@@ -98,5 +98,10 @@
     "name": "Burnout Drift",
     "image": "https://pub-c77eb84ebd5c408aa81bb7f3302cac57.r2.dev/attached_assets/game_icons/Burnout%20Drive.webp",
     "url": "https://23azostore.github.io/s2/burnout-drift-seaport-max"
+  },
+  "65874": {
+    "name": "Real Flight Simulator",
+    "image": "https://freezenova.com/media/posts/335/responsive/RFS-lg.jpg",
+    "url": "https://freezenova.com/games/2023/unity/real-flight-simulator/index.html"
   }
 }
