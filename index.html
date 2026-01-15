@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>Turbo Moto Racer</title>
+
+<style>
+/* إعدادات الصفحة */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* الحاويات */
+.item-area,
+#item-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* iframe بكامل الصفحة */
+#item-direct-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  border: none;
+  z-index: 9999;
+}
+
+/* إخفاء العناصر الإضافية */
+.background-under-game,
+.request-play-game {
+  display: none !important;
+}
+</style>
+</head>
+
+<body>
+
+<div class="item-area">
+  <div class="background-under-game" style="background-image: url('https://cdn2.y8.com/cloudimage/224031/file/w180h135_webp-a35176c6f48bfc2dd9898a95ac6cf4ef.webp')"></div>
+  
+  <div class="request-play-game" id="suggest-fullscreen" style="display: none;">
+    <div class="content">
+      <div class="game-preview">
+        <video disableremoteplayback autoplay loop muted poster="https://cdn2.y8.com/cloudimage/224031/file/w180h135_webp-a35176c6f48bfc2dd9898a95ac6cf4ef.webp">
+          <source src="/cloud/v2-y8-video-previews-001/videos/134778/65a9fc84a2a60f407fe184b1cec07bff2205ed9e.mp4" type="video/mp4">
+          <source src="/cloud/v2-y8-video-previews-001/videos/134778/618cffb269d1923d85ad347097088a0adfa8b25d.webm" type="video/webm">
+          <source src="/cloud/v2-y8-video-previews-001/videos/134778/55655366fedfb5c487832c9fb2add22099543cf1.ogv" type="video/ogv">
+          <img src="https://cdn2.y8.com/cloudimage/224031/file/w180h135_webp-a35176c6f48bfc2dd9898a95ac6cf4ef.webp">
+        </video>
+      </div>
+      <div class="request-play-game__wrapper">
+        <div class="game-name">Turbo Moto Racer</div>
+        <a class="play-game suggest-fullscreen--action" id="play-game" target="_blank" href="#fullscreen">
+          لعب بحجم الشاشة الكامل
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="request-play-game" id="screen-not-compatible" style="display: none;">
+    <div class="content">
+      <div class="game-preview">
+        <video disableremoteplayback autoplay loop muted poster="https://cdn2.y8.com/cloudimage/224031/file/w180h135_webp-a35176c6f48bfc2dd9898a95ac6cf4ef.webp">
+          <source src="/cloud/v2-y8-video-previews-001/videos/134778/65a9fc84a2a60f407fe184b1cec07bff2205ed9e.mp4" type="video/mp4">
+          <source src="/cloud/v2-y8-video-previews-001/videos/134778/618cffb269d1923d85ad347097088a0adfa8b25d.webm" type="video/webm">
+          <source src="/cloud/v2-y8-video-previews-001/videos/134778/55655366fedfb5c487832c9fb2add22099543cf1.ogv" type="video/ogv">
+          <img src="https://cdn2.y8.com/cloudimage/224031/file/w180h135_webp-a35176c6f48bfc2dd9898a95ac6cf4ef.webp">
+        </video>
+      </div>
+      <div class="request-play-game__wrapper">
+        <div class="game-name">Turbo Moto Racer</div>
+        <div class="request-play-game__text">
+          شاشتك صغيرة للغاية على تلك اللعبة
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    id="item-container"
+    class="item-container"
+    data-item-height="639"
+    data-item-width="960"
+    data-item-supports-resizing="true"
+    data-item-ratio-tolerant="false"
+    data-maximize="false"
+    data-focus-object="false"
+    data-focus-html5-content="false"
+    data-item-tog-path="/items/170775/tog"
+    data-item-loader="Html5Loader"
+    data-slug="turbo_moto_racer"
+    direct_render="false"
+    style="display: block;"
+  >
+    <iframe
+      id="item-direct-container"
+      class="item-direct-container resizable"
+      width="960"
+      height="639"
+      allow="autoplay"
+      allowfullscreen
+      frameborder="0"
+      scrolling="no"
+      src="https://storage.y8.com/y8-studio/unity_webgl/gamosoftstudios/y8_TurboMotoRacer-2025-32bit_1_2/index.html?key=6842727&value=170775">
+    </iframe>
+  </div>
+</div>
+
+</body>
+</html>
