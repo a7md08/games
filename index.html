@@ -1,42 +1,238 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>Fast Video Player</title>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css"/>
+<title>Smart TV Player</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
 html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  background:#000;
+  margin:0;width:100%;height:100%;
+  background:#000;overflow:hidden;cursor:none;
+  font-family:Arial,sans-serif;
 }
-video{
-  width:100%;
-  height:100%;
+#app{position:relative;width:100%;height:100%}
+video{width:100%;height:100%;object-fit:contain;background:#000}
+
+/* شريط التحكم */
+#bar{
+  position:absolute;
+  left:8vw;right:8vw;bottom:4vh;
+  padding:16px 22px;
+  border-radius:28px;
+  background:linear-gradient(to top,rgba(0,0,0,.85),rgba(20,20,20,.75));
+  backdrop-filter:blur(14px);
+  display:none;
+  align-items:center;gap:18px;
+  box-shadow:0 10px 40px rgba(0,0,0,.6);
+  opacity:0;transform:translateY(24px);
+  transition:.3s ease;
 }
-.plyr__captions{
-  font-size:20px;
-  text-shadow:0 0 6px #000,0 0 10px #000;
+#bar.show{opacity:1;transform:translateY(0)}
+
+.btn{
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(145deg,#1a1a1a,#0d0d0d);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:24px;
 }
+
+#progress{
+  flex:1;height:7px;background:#222;border-radius:10px;
+  overflow:hidden;position:relative;
+}
+#buffer,#played{position:absolute;top:0;left:0;height:100%}
+#buffer{background:rgba(255,255,255,.25);width:0%}
+#played{background:linear-gradient(90deg,#1db954,#1ed760);width:0%}
+
+#time{color:#eee;font-size:15px;min-width:130px;text-align:center}
+
+#loader{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;opacity:0;transition:.3s;
+}
+#loader.show{opacity:1}
+.spinner{
+  width:60px;height:60px;border:5px solid rgba(255,255,255,.15);
+  border-top:5px solid #1db954;border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+#pauseIcon{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:140px;color:#fff;opacity:0;
+  pointer-events:none;
+  transition:.25s;
+}
+#pauseIcon.show{opacity:.95}
 </style>
 </head>
+
 <body>
+<div id="app">
+  <video id="video" playsinline></video>
 
-<video id="player" controls crossorigin playsinline>
-  <source src="https://server1.iwaatch.com/Catch_Me_If_You_Can/movie_720.mp4/eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJ2YWxpZGF0ZSIsInN1YiI6IjE3Ni4yOS44MC4xMjcifQ.h3rUZ0ZwJ65r9AAnwGfl1SmOls0hZy1XnmYMeoJUau6L6DR14fe6ku5P069NqktGVsgl5UbwM3M7m2MDFxlNHw" type="video/mp4">
-  <track src="./Catch_Me_If_You_Can.vtt" kind="subtitles" srclang="ar" label="Arabic" default>
-</video>
+  <div id="pauseIcon">▶</div>
 
-<script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.js"></script>
+  <div id="bar">
+    <div class="btn" id="play">▶</div>
+    <div id="progress">
+      <div id="buffer"></div>
+      <div id="played"></div>
+    </div>
+    <div id="time">00:00 / 00:00</div>
+    <div class="btn" id="fs">⛶</div>
+  </div>
+
+  <div id="loader"><div class="spinner"></div></div>
+</div>
+
 <script>
-new Plyr('#player',{
-  captions:{active:true,update:true},
-  controls:['play','progress','current-time','mute','volume','settings','fullscreen']
+const INTRO_SRC="https://a7md08.github.io/Files/Web/Netflix_New_Logo_Animation_2019_1080p.mp4";
+const MAIN_SRC="https://egy41ssxdffdvwerwe432vxcvxcvbcx321scvxv45cdsw1dfdsfsd.visitmycityfor365days.online/hls2/01/00089/r12uuvarnu5o_l/index-v1-a1.m3u8?t=pd981pCXfrR4DRPwhBrH5-3IszK5JQXMn6e0GCEl8dY&s=1768487563&e=43200&f=445468&i=0.0&sp=0";
+
+const app=document.getElementById("app");
+const v=document.getElementById("video");
+const bar=document.getElementById("bar");
+const playBtn=document.getElementById("play");
+const fsBtn=document.getElementById("fs");
+const played=document.getElementById("played");
+const buffer=document.getElementById("buffer");
+const timeEl=document.getElementById("time");
+const loader=document.getElementById("loader");
+const pauseIcon=document.getElementById("pauseIcon");
+
+let introDuration=0, mainDuration=0, isIntro=true, hls=null;
+
+/* تشغيل الانترو */
+v.src=INTRO_SRC;
+v.play();
+
+/* نهاية الانترو */
+v.addEventListener("ended",()=>{
+  if(isIntro){
+    isIntro=false;
+    bar.style.display="flex";
+    loadMain();
+  }
+});
+
+/* تحميل الفيديو الأساسي */
+function loadMain(){
+  if(Hls.isSupported()){
+    hls=new Hls();
+    hls.loadSource(MAIN_SRC);
+    hls.attachMedia(v);
+  }else v.src=MAIN_SRC;
+  v.play();
+}
+
+/* حساب المدد */
+v.addEventListener("loadedmetadata",()=>{
+  if(isIntro) introDuration=v.duration;
+  else mainDuration=v.duration;
+});
+
+/* تنسيق الوقت */
+function fmt(t){
+  if(!t||isNaN(t)) return "00:00";
+  const m=String(Math.floor(t/60)).padStart(2,"0");
+  const s=String(Math.floor(t%60)).padStart(2,"0");
+  return `${m}:${s}`;
+}
+
+/* التقدم */
+v.ontimeupdate=()=>{
+  const total=introDuration+mainDuration;
+  const current=isIntro?v.currentTime:introDuration+v.currentTime;
+  if(total){
+    played.style.width=(current/total*100)+"%";
+    timeEl.textContent=`${fmt(current)} / ${fmt(total)}`;
+  }
+};
+
+/* البافر */
+v.onprogress=()=>{
+  if(v.buffered.length){
+    const end=v.buffered.end(v.buffered.length-1);
+    const cur=isIntro?end:introDuration+end;
+    const total=introDuration+mainDuration;
+    if(total) buffer.style.width=(cur/total*100)+"%";
+  }
+};
+
+/* لودر */
+v.onwaiting=()=>loader.classList.add("show");
+v.onplaying=()=>loader.classList.remove("show");
+v.oncanplay=()=>loader.classList.remove("show");
+
+/* أزرار */
+playBtn.onclick=()=>v.paused?v.play():v.pause();
+
+/* تشغيل */
+v.onplay=()=>{
+  playBtn.textContent="⏸";
+  pauseIcon.classList.remove("show");
+  if(!isIntro){
+    showBarTemp();
+  }
+};
+
+/* إيقاف */
+v.onpause=()=>{
+  playBtn.textContent="▶";
+  pauseIcon.classList.add("show");
+  if(!isIntro) bar.classList.add("show");
+};
+
+/* fullscreen */
+fsBtn.onclick=()=>{
+  if(!document.fullscreenElement) app.requestFullscreen();
+  else document.exitFullscreen();
+};
+document.addEventListener("fullscreenchange",()=>{
+  fsBtn.style.display=document.fullscreenElement?"none":"flex";
+});
+
+/* إظهار المشغل مؤقتًا */
+function showBarTemp(){
+  bar.classList.add("show");
+  clearTimeout(window._t);
+  window._t=setTimeout(()=>bar.classList.remove("show"),3000);
+}
+
+/* ريموت */
+let enterTimer=null;
+document.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){
+    if(enterTimer){
+      clearTimeout(enterTimer);
+      enterTimer=null;
+      if(!document.fullscreenElement) app.requestFullscreen();
+      else document.exitFullscreen();
+    }else{
+      enterTimer=setTimeout(()=>{
+        v.paused?v.play():v.pause();
+        enterTimer=null;
+      },250);
+    }
+  }
+
+  if(!isIntro){
+    if(e.key==="ArrowRight"){
+      v.currentTime+=10;
+      showBarTemp();
+    }
+    if(e.key==="ArrowLeft"){
+      v.currentTime-=10;
+      showBarTemp();
+    }
+  }
 });
 </script>
-
 </body>
 </html>
