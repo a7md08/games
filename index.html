@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fast Video Player</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css"/>
+
+<style>
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:#000;
+}
+video{
+  width:100%;
+  height:100%;
+}
+.plyr__captions{
+  font-size:20px;
+  text-shadow:0 0 6px #000,0 0 10px #000;
+}
+</style>
+</head>
+<body>
+
+<video id="player" controls crossorigin playsinline>
+  <source src="https://server1.iwaatch.com/Catch_Me_If_You_Can/movie_720.mp4/eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJ2YWxpZGF0ZSIsInN1YiI6IjE3Ni4yOS44MC4xMjcifQ.h3rUZ0ZwJ65r9AAnwGfl1SmOls0hZy1XnmYMeoJUau6L6DR14fe6ku5P069NqktGVsgl5UbwM3M7m2MDFxlNHw" type="video/mp4">
+  <track src="./Catch_Me_If_You_Can.vtt" kind="subtitles" srclang="ar" label="Arabic" default>
+</video>
+
+<script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.js"></script>
+<script>
+new Plyr('#player',{
+  captions:{active:true,update:true},
+  controls:['play','progress','current-time','mute','volume','settings','fullscreen']
+});
+</script>
+
+</body>
+</html>
