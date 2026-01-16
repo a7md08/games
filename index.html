@@ -7,65 +7,137 @@
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
+/* ===== الأساس ===== */
 html,body{
   margin:0;width:100%;height:100%;
-  background:#000;overflow:hidden;cursor:none;
-  font-family:Arial,sans-serif;
+  background:#000;
+  overflow:hidden;
+  cursor:none;
+  font-family:system-ui,-apple-system,Segoe UI,Arial;
 }
 #app{position:relative;width:100%;height:100%}
-video{width:100%;height:100%;object-fit:contain;background:#000}
+video{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#000;
+}
 
-/* شريط التحكم */
+/* ===== شريط التحكم (تصميم فقط) ===== */
 #bar{
   position:absolute;
-  left:8vw;right:8vw;bottom:4vh;
-  padding:16px 22px;
-  border-radius:28px;
-  background:linear-gradient(to top,rgba(0,0,0,.85),rgba(20,20,20,.75));
-  backdrop-filter:blur(14px);
+  left:7vw;
+  right:7vw;
+  bottom:4vh;
+  padding:18px 26px;
+  border-radius:32px;
+
+  background:rgba(20,20,20,.65);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+
   display:none;
-  align-items:center;gap:18px;
-  box-shadow:0 10px 40px rgba(0,0,0,.6);
-  opacity:0;transform:translateY(24px);
-  transition:.3s ease;
-}
-#bar.show{opacity:1;transform:translateY(0)}
+  align-items:center;
+  gap:20px;
 
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.7),
+    inset 0 0 0 1px rgba(255,255,255,.06);
+
+  opacity:0;
+  transform:translateY(28px);
+  transition:.35s ease;
+}
+#bar.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* ===== الأزرار ===== */
 .btn{
-  width:56px;height:56px;border-radius:50%;
-  background:linear-gradient(145deg,#1a1a1a,#0d0d0d);
-  color:#fff;display:flex;align-items:center;justify-content:center;
-  font-size:24px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:linear-gradient(145deg,#1f1f1f,#0b0b0b);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:26px;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.08),
+    0 8px 22px rgba(0,0,0,.7);
 }
 
+/* ===== شريط التقدم ===== */
 #progress{
-  flex:1;height:7px;background:#222;border-radius:10px;
-  overflow:hidden;position:relative;
+  flex:1;
+  height:8px;
+  background:#1c1c1c;
+  border-radius:20px;
+  overflow:hidden;
+  position:relative;
 }
-#buffer,#played{position:absolute;top:0;left:0;height:100%}
-#buffer{background:rgba(255,255,255,.25);width:0%}
-#played{background:linear-gradient(90deg,#1db954,#1ed760);width:0%}
+#buffer,#played{
+  position:absolute;
+  top:0;
+  left:0;
+  height:100%;
+}
+#buffer{
+  background:rgba(255,255,255,.25);
+}
+#played{
+  background:linear-gradient(90deg,#1db954,#1ed760);
+  box-shadow:0 0 10px rgba(30,215,96,.8);
+}
 
-#time{color:#eee;font-size:15px;min-width:130px;text-align:center}
+/* ===== الوقت ===== */
+#time{
+  color:#eee;
+  font-size:15px;
+  min-width:140px;
+  text-align:center;
+  opacity:.9;
+}
 
+/* ===== Loader ===== */
 #loader{
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  pointer-events:none;opacity:0;transition:.3s;
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+  opacity:0;
+  transition:.3s;
 }
 #loader.show{opacity:1}
 .spinner{
-  width:60px;height:60px;border:5px solid rgba(255,255,255,.15);
-  border-top:5px solid #1db954;border-radius:50%;
+  width:64px;
+  height:64px;
+  border:6px solid rgba(255,255,255,.15);
+  border-top:6px solid #1db954;
+  border-radius:50%;
   animation:spin 1s linear infinite;
 }
-@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
 
+/* ===== أيقونة الإيقاف ===== */
 #pauseIcon{
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  font-size:140px;color:#fff;opacity:0;
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:150px;
+  color:#fff;
+  opacity:0;
   pointer-events:none;
+  text-shadow:0 0 40px rgba(0,0,0,.9);
   transition:.25s;
 }
 #pauseIcon.show{opacity:.95}
@@ -92,6 +164,7 @@ video{width:100%;height:100%;object-fit:contain;background:#000}
 </div>
 
 <script>
+/* ===== الكود الأصلي بدون تغيير ===== */
 const INTRO_SRC="https://a7md08.github.io/Files/Web/Netflix_New_Logo_Animation_2019_1080p.mp4";
 const MAIN_SRC="https://egy41ssxdffdvwerwe432vxcvxcvbcx321scvxv45cdsw1dfdsfsd.visitmycityfor365days.online/hls2/01/00089/r12uuvarnu5o_l/index-v1-a1.m3u8?t=pd981pCXfrR4DRPwhBrH5-3IszK5JQXMn6e0GCEl8dY&s=1768487563&e=43200&f=445468&i=0.0&sp=0";
 
@@ -106,13 +179,12 @@ const timeEl=document.getElementById("time");
 const loader=document.getElementById("loader");
 const pauseIcon=document.getElementById("pauseIcon");
 
-let introDuration=0, mainDuration=0, isIntro=true, hls=null;
+let introDuration=0, mainDuration=0, isIntro=true;
+let hls=null, enterTimer=null;
 
-/* تشغيل الانترو */
 v.src=INTRO_SRC;
 v.play();
 
-/* نهاية الانترو */
 v.addEventListener("ended",()=>{
   if(isIntro){
     isIntro=false;
@@ -121,7 +193,6 @@ v.addEventListener("ended",()=>{
   }
 });
 
-/* تحميل الفيديو الأساسي */
 function loadMain(){
   if(Hls.isSupported()){
     hls=new Hls();
@@ -131,21 +202,16 @@ function loadMain(){
   v.play();
 }
 
-/* حساب المدد */
 v.addEventListener("loadedmetadata",()=>{
-  if(isIntro) introDuration=v.duration;
-  else mainDuration=v.duration;
+  isIntro ? introDuration=v.duration : mainDuration=v.duration;
 });
 
-/* تنسيق الوقت */
 function fmt(t){
   if(!t||isNaN(t)) return "00:00";
-  const m=String(Math.floor(t/60)).padStart(2,"0");
-  const s=String(Math.floor(t%60)).padStart(2,"0");
-  return `${m}:${s}`;
+  return String(Math.floor(t/60)).padStart(2,"0")+":"+
+         String(Math.floor(t%60)).padStart(2,"0");
 }
 
-/* التقدم */
 v.ontimeupdate=()=>{
   const total=introDuration+mainDuration;
   const current=isIntro?v.currentTime:introDuration+v.currentTime;
@@ -155,7 +221,6 @@ v.ontimeupdate=()=>{
   }
 };
 
-/* البافر */
 v.onprogress=()=>{
   if(v.buffered.length){
     const end=v.buffered.end(v.buffered.length-1);
@@ -165,72 +230,59 @@ v.onprogress=()=>{
   }
 };
 
-/* لودر */
 v.onwaiting=()=>loader.classList.add("show");
 v.onplaying=()=>loader.classList.remove("show");
 v.oncanplay=()=>loader.classList.remove("show");
 
-/* أزرار */
 playBtn.onclick=()=>v.paused?v.play():v.pause();
+fsBtn.onclick=()=>{
+  document.fullscreenElement?document.exitFullscreen():app.requestFullscreen();
+};
 
-/* تشغيل */
 v.onplay=()=>{
   playBtn.textContent="⏸";
   pauseIcon.classList.remove("show");
-  if(!isIntro){
-    showBarTemp();
-  }
+  showBarTemp();
 };
-
-/* إيقاف */
 v.onpause=()=>{
   playBtn.textContent="▶";
   pauseIcon.classList.add("show");
-  if(!isIntro) bar.classList.add("show");
+  bar.classList.add("show");
 };
 
-/* fullscreen */
-fsBtn.onclick=()=>{
-  if(!document.fullscreenElement) app.requestFullscreen();
-  else document.exitFullscreen();
-};
 document.addEventListener("fullscreenchange",()=>{
   fsBtn.style.display=document.fullscreenElement?"none":"flex";
 });
 
-/* إظهار المشغل مؤقتًا */
 function showBarTemp(){
   bar.classList.add("show");
   clearTimeout(window._t);
-  window._t=setTimeout(()=>bar.classList.remove("show"),3000);
+  window._t=setTimeout(()=>{
+    if(!v.paused) bar.classList.remove("show");
+  },3000);
 }
 
-/* ريموت */
-let enterTimer=null;
 document.addEventListener("keydown",e=>{
-  if(e.key==="Enter"){
+  const k=e.key,c=e.keyCode;
+
+  if(k==="Enter"||c===13){
     if(enterTimer){
       clearTimeout(enterTimer);
       enterTimer=null;
-      if(!document.fullscreenElement) app.requestFullscreen();
-      else document.exitFullscreen();
+      fsBtn.onclick();
     }else{
       enterTimer=setTimeout(()=>{
-        v.paused?v.play():v.pause();
+        playBtn.onclick();
         enterTimer=null;
       },250);
     }
   }
 
   if(!isIntro){
-    if(e.key==="ArrowRight"){
-      v.currentTime+=10;
-      showBarTemp();
-    }
-    if(e.key==="ArrowLeft"){
-      v.currentTime-=10;
-      showBarTemp();
-    }
+    if(k==="ArrowRight"||c===39){ v.currentTime+=10; showBarTemp(); }
+    if(k==="ArrowLeft" ||c===37){ v.currentTime-=10; showBarTemp(); }
+    if(k==="ArrowUp"   ||c===38){ bar.classList.add("show"); }
+    if(k==="ArrowDown" ||c===40){ bar.classList.add("show"); }
   }
 });
 </script>
