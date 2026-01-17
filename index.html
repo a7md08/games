@@ -7,99 +7,36 @@
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
-/* ===== الأساس ===== */
 html,body{
-  margin:0;width:100%;height:100%;
-  background:#000;
+  margin:0;
+  width:100%;
+  height:100%;
+  background:transparent;   /* ✅ شفاف */
   overflow:hidden;
-  cursor:none;
-  font-family:system-ui,-apple-system,Segoe UI,Arial;
+  font-family:system-ui,Arial;
 }
-#app{position:relative;width:100%;height:100%}
+#app{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:transparent;   /* ✅ */
+}
+
+/* ===== حاوية الفيديو ===== */
+#videoWrap{
+  position:relative;
+  width:100%;
+  height:100%;
+  background:transparent;   /* ✅ */
+}
+
 video{
   width:100%;
   height:100%;
   object-fit:contain;
-  background:#000;
-}
-
-/* ===== شريط التحكم (تصميم فقط) ===== */
-#bar{
-  position:absolute;
-  left:7vw;
-  right:7vw;
-  bottom:4vh;
-  padding:18px 26px;
-  border-radius:32px;
-
-  background:rgba(20,20,20,.65);
-  backdrop-filter:blur(18px);
-  -webkit-backdrop-filter:blur(18px);
-
-  display:none;
-  align-items:center;
-  gap:20px;
-
-  box-shadow:
-    0 20px 60px rgba(0,0,0,.7),
-    inset 0 0 0 1px rgba(255,255,255,.06);
-
-  opacity:0;
-  transform:translateY(28px);
-  transition:.35s ease;
-}
-#bar.show{
-  opacity:1;
-  transform:translateY(0);
-}
-
-/* ===== الأزرار ===== */
-.btn{
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  background:linear-gradient(145deg,#1f1f1f,#0b0b0b);
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:26px;
-
-  box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.08),
-    0 8px 22px rgba(0,0,0,.7);
-}
-
-/* ===== شريط التقدم ===== */
-#progress{
-  flex:1;
-  height:8px;
-  background:#1c1c1c;
-  border-radius:20px;
-  overflow:hidden;
-  position:relative;
-}
-#buffer,#played{
-  position:absolute;
-  top:0;
-  left:0;
-  height:100%;
-}
-#buffer{
-  background:rgba(255,255,255,.25);
-}
-#played{
-  background:linear-gradient(90deg,#1db954,#1ed760);
-  box-shadow:0 0 10px rgba(30,215,96,.8);
-}
-
-/* ===== الوقت ===== */
-#time{
-  color:#eee;
-  font-size:15px;
-  min-width:140px;
-  text-align:center;
-  opacity:.9;
+  background:transparent;   /* ✅ */
 }
 
 /* ===== Loader ===== */
@@ -114,16 +51,79 @@ video{
   transition:.3s;
 }
 #loader.show{opacity:1}
+
 .spinner{
-  width:64px;
-  height:64px;
+  width:64px;height:64px;
   border:6px solid rgba(255,255,255,.15);
   border-top:6px solid #1db954;
   border-radius:50%;
   animation:spin 1s linear infinite;
 }
-@keyframes spin{
-  to{transform:rotate(360deg)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== شريط التحكم ===== */
+#bar{
+  position:absolute;
+  left:4%;
+  right:4%;
+  bottom:4%;
+  padding:18px 26px;
+  border-radius:30px;
+  background:rgba(20,20,20,.7); /* فقط المشغل */
+  backdrop-filter:blur(16px);
+  display:none;
+  align-items:center;
+  gap:18px;
+  opacity:0;
+  transform:translateY(30px);
+  transition:.35s ease;
+}
+#bar.show{opacity:1;transform:translateY(0)}
+
+.btn{
+  width:58px;height:58px;
+  border-radius:50%;
+  background:#111;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:26px;
+  cursor:pointer;
+  transition:.25s;
+}
+.btn:hover{transform:scale(1.12)}
+
+/* ===== شريط التقدم ===== */
+#progress{
+  flex:1;height:8px;
+  background:#222;
+  border-radius:20px;
+  overflow:hidden;
+  position:relative;
+  cursor:pointer;
+}
+#buffer,#played{
+  position:absolute;top:0;left:0;height:100%;
+}
+#buffer{background:rgba(255,255,255,.25)}
+#played{background:#1db954}
+
+#thumb{
+  position:absolute;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:18px;height:18px;
+  border-radius:50%;
+  background:#1db954;
+}
+
+/* ===== الوقت ===== */
+#time{
+  color:#eee;
+  font-size:15px;
+  min-width:140px;
+  text-align:center;
 }
 
 /* ===== أيقونة الإيقاف ===== */
@@ -137,75 +137,94 @@ video{
   color:#fff;
   opacity:0;
   pointer-events:none;
-  text-shadow:0 0 40px rgba(0,0,0,.9);
-  transition:.25s;
+  transition:.3s;
 }
-#pauseIcon.show{opacity:.95}
+#pauseIcon.show{opacity:.9}
 </style>
 </head>
 
 <body>
 <div id="app">
-  <video id="video" playsinline></video>
 
-  <div id="pauseIcon">▶</div>
+  <div id="videoWrap">
+    <video id="video" playsinline></video>
 
-  <div id="bar">
-    <div class="btn" id="play">▶</div>
-    <div id="progress">
-      <div id="buffer"></div>
-      <div id="played"></div>
+    <div id="pauseIcon">▶</div>
+
+    <div id="loader">
+      <div class="spinner"></div>
     </div>
-    <div id="time">00:00 / 00:00</div>
-    <div class="btn" id="fs">⛶</div>
+
+    <div id="bar">
+      <div class="btn" id="play">▶</div>
+
+      <div id="progress">
+        <div id="buffer"></div>
+        <div id="played"></div>
+        <div id="thumb"></div>
+      </div>
+
+      <div id="time">00:00 / 00:00</div>
+      <div class="btn" id="fs">⛶</div>
+    </div>
   </div>
 
-  <div id="loader"><div class="spinner"></div></div>
 </div>
 
 <script>
-/* ===== الكود الأصلي بدون تغيير ===== */
 const INTRO_SRC="https://a7md08.github.io/Files/Web/Netflix_New_Logo_Animation_2019_1080p.mp4";
-const MAIN_SRC="https://egy41ssxdffdvwerwe432vxcvxcvbcx321scvxv45cdsw1dfdsfsd.visitmycityfor365days.online/hls2/01/00089/r12uuvarnu5o_l/index-v1-a1.m3u8?t=pd981pCXfrR4DRPwhBrH5-3IszK5JQXMn6e0GCEl8dY&s=1768487563&e=43200&f=445468&i=0.0&sp=0";
+const MAIN_SRC="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
 
-const app=document.getElementById("app");
+const wrap=document.getElementById("videoWrap");
 const v=document.getElementById("video");
 const bar=document.getElementById("bar");
 const playBtn=document.getElementById("play");
 const fsBtn=document.getElementById("fs");
 const played=document.getElementById("played");
 const buffer=document.getElementById("buffer");
+const thumb=document.getElementById("thumb");
 const timeEl=document.getElementById("time");
-const loader=document.getElementById("loader");
 const pauseIcon=document.getElementById("pauseIcon");
+const progress=document.getElementById("progress");
+const loader=document.getElementById("loader");
 
-let introDuration=0, mainDuration=0, isIntro=true;
-let hls=null, enterTimer=null;
+let isIntro=true;
+let hls=null;
 
+/* ===== المقدمة ===== */
 v.src=INTRO_SRC;
+v.muted=false;
 v.play();
 
-v.addEventListener("ended",()=>{
+v.addEventListener("pause",()=>{ if(isIntro) v.play(); });
+
+v.onended=()=>{
   if(isIntro){
     isIntro=false;
-    bar.style.display="flex";
     loadMain();
   }
-});
+};
 
+/* ===== الفيديو الرئيسي ===== */
 function loadMain(){
+  bar.style.display="flex";
+  loader.classList.add("show");
+
   if(Hls.isSupported()){
     hls=new Hls();
     hls.loadSource(MAIN_SRC);
     hls.attachMedia(v);
-  }else v.src=MAIN_SRC;
+  }else{
+    v.src=MAIN_SRC;
+  }
   v.play();
 }
 
-v.addEventListener("loadedmetadata",()=>{
-  isIntro ? introDuration=v.duration : mainDuration=v.duration;
-});
+/* ===== Loader ===== */
+v.addEventListener("waiting",()=>{ if(!isIntro) loader.classList.add("show"); });
+v.addEventListener("playing",()=>{ loader.classList.remove("show"); });
 
+/* ===== الوقت ===== */
 function fmt(t){
   if(!t||isNaN(t)) return "00:00";
   return String(Math.floor(t/60)).padStart(2,"0")+":"+
@@ -213,36 +232,35 @@ function fmt(t){
 }
 
 v.ontimeupdate=()=>{
-  const total=introDuration+mainDuration;
-  const current=isIntro?v.currentTime:introDuration+v.currentTime;
-  if(total){
-    played.style.width=(current/total*100)+"%";
-    timeEl.textContent=`${fmt(current)} / ${fmt(total)}`;
-  }
+  if(isIntro) return;
+  const p=(v.currentTime/v.duration)*100;
+  played.style.width=p+"%";
+  thumb.style.left=p+"%";
+  timeEl.textContent=`${fmt(v.currentTime)} / ${fmt(v.duration)}`;
 };
 
+/* ===== البفر ===== */
 v.onprogress=()=>{
-  if(v.buffered.length){
+  if(v.buffered.length && !isIntro){
     const end=v.buffered.end(v.buffered.length-1);
-    const cur=isIntro?end:introDuration+end;
-    const total=introDuration+mainDuration;
-    if(total) buffer.style.width=(cur/total*100)+"%";
+    buffer.style.width=(end/v.duration*100)+"%";
   }
 };
 
-v.onwaiting=()=>loader.classList.add("show");
-v.onplaying=()=>loader.classList.remove("show");
-v.oncanplay=()=>loader.classList.remove("show");
-
+/* ===== تحكم ===== */
 playBtn.onclick=()=>v.paused?v.play():v.pause();
+v.onclick=()=>v.paused?v.play():v.pause();
+
 fsBtn.onclick=()=>{
-  document.fullscreenElement?document.exitFullscreen():app.requestFullscreen();
+  document.fullscreenElement
+    ? document.exitFullscreen()
+    : wrap.requestFullscreen();
 };
 
 v.onplay=()=>{
   playBtn.textContent="⏸";
   pauseIcon.classList.remove("show");
-  showBarTemp();
+  showUI();
 };
 v.onpause=()=>{
   playBtn.textContent="▶";
@@ -250,41 +268,25 @@ v.onpause=()=>{
   bar.classList.add("show");
 };
 
-document.addEventListener("fullscreenchange",()=>{
-  fsBtn.style.display=document.fullscreenElement?"none":"flex";
-});
+/* ===== شريط التقدم ===== */
+progress.onclick=e=>{
+  if(isIntro) return;
+  const r=progress.getBoundingClientRect();
+  const p=(e.clientX-r.left)/r.width;
+  v.currentTime=p*v.duration;
+};
 
-function showBarTemp(){
+/* ===== إخفاء تلقائي ===== */
+let uiTimer;
+function showUI(){
+  if(isIntro) return;
   bar.classList.add("show");
-  clearTimeout(window._t);
-  window._t=setTimeout(()=>{
+  clearTimeout(uiTimer);
+  uiTimer=setTimeout(()=>{
     if(!v.paused) bar.classList.remove("show");
   },3000);
 }
-
-document.addEventListener("keydown",e=>{
-  const k=e.key,c=e.keyCode;
-
-  if(k==="Enter"||c===13){
-    if(enterTimer){
-      clearTimeout(enterTimer);
-      enterTimer=null;
-      fsBtn.onclick();
-    }else{
-      enterTimer=setTimeout(()=>{
-        playBtn.onclick();
-        enterTimer=null;
-      },250);
-    }
-  }
-
-  if(!isIntro){
-    if(k==="ArrowRight"||c===39){ v.currentTime+=10; showBarTemp(); }
-    if(k==="ArrowLeft" ||c===37){ v.currentTime-=10; showBarTemp(); }
-    if(k==="ArrowUp"   ||c===38){ bar.classList.add("show"); }
-    if(k==="ArrowDown" ||c===40){ bar.classList.add("show"); }
-  }
-});
+document.addEventListener("mousemove",showUI);
 </script>
 </body>
 </html>
