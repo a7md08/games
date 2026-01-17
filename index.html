@@ -11,7 +11,7 @@ html,body{
   margin:0;
   width:100%;
   height:100%;
-  background:transparent;   /* ✅ شفاف */
+  background:transparent;
   overflow:hidden;
   font-family:system-ui,Arial;
 }
@@ -21,22 +21,25 @@ html,body{
   display:flex;
   align-items:center;
   justify-content:center;
-  background:transparent;   /* ✅ */
+  background:transparent;
 }
 
-/* ===== حاوية الفيديو ===== */
+/* ===== حاوية الفيديو (حسب أبعاد الفيديو) ===== */
 #videoWrap{
   position:relative;
-  width:100%;
-  height:100%;
-  background:transparent;   /* ✅ */
+  aspect-ratio:16 / 9;
+  max-width:100%;
+  max-height:100%;
+  width:auto;
+  height:auto;
+  background:#000;
 }
 
 video{
   width:100%;
   height:100%;
   object-fit:contain;
-  background:transparent;   /* ✅ */
+  background:#000;
 }
 
 /* ===== Loader ===== */
@@ -69,7 +72,7 @@ video{
   bottom:4%;
   padding:18px 26px;
   border-radius:30px;
-  background:rgba(20,20,20,.7); /* فقط المشغل */
+  background:rgba(20,20,20,.7);
   backdrop-filter:blur(16px);
   display:none;
   align-items:center;
@@ -145,7 +148,6 @@ video{
 
 <body>
 <div id="app">
-
   <div id="videoWrap">
     <video id="video" playsinline></video>
 
@@ -157,18 +159,15 @@ video{
 
     <div id="bar">
       <div class="btn" id="play">▶</div>
-
       <div id="progress">
         <div id="buffer"></div>
         <div id="played"></div>
         <div id="thumb"></div>
       </div>
-
       <div id="time">00:00 / 00:00</div>
       <div class="btn" id="fs">⛶</div>
     </div>
   </div>
-
 </div>
 
 <script>
@@ -191,9 +190,7 @@ const loader=document.getElementById("loader");
 let isIntro=true;
 let hls=null;
 
-/* ===== المقدمة ===== */
 v.src=INTRO_SRC;
-v.muted=false;
 v.play();
 
 v.addEventListener("pause",()=>{ if(isIntro) v.play(); });
@@ -205,11 +202,9 @@ v.onended=()=>{
   }
 };
 
-/* ===== الفيديو الرئيسي ===== */
 function loadMain(){
   bar.style.display="flex";
   loader.classList.add("show");
-
   if(Hls.isSupported()){
     hls=new Hls();
     hls.loadSource(MAIN_SRC);
@@ -220,15 +215,12 @@ function loadMain(){
   v.play();
 }
 
-/* ===== Loader ===== */
 v.addEventListener("waiting",()=>{ if(!isIntro) loader.classList.add("show"); });
 v.addEventListener("playing",()=>{ loader.classList.remove("show"); });
 
-/* ===== الوقت ===== */
 function fmt(t){
   if(!t||isNaN(t)) return "00:00";
-  return String(Math.floor(t/60)).padStart(2,"0")+":"+
-         String(Math.floor(t%60)).padStart(2,"0");
+  return String(Math.floor(t/60)).padStart(2,"0")+":"+String(Math.floor(t%60)).padStart(2,"0");
 }
 
 v.ontimeupdate=()=>{
@@ -239,7 +231,6 @@ v.ontimeupdate=()=>{
   timeEl.textContent=`${fmt(v.currentTime)} / ${fmt(v.duration)}`;
 };
 
-/* ===== البفر ===== */
 v.onprogress=()=>{
   if(v.buffered.length && !isIntro){
     const end=v.buffered.end(v.buffered.length-1);
@@ -247,7 +238,6 @@ v.onprogress=()=>{
   }
 };
 
-/* ===== تحكم ===== */
 playBtn.onclick=()=>v.paused?v.play():v.pause();
 v.onclick=()=>v.paused?v.play():v.pause();
 
@@ -268,7 +258,6 @@ v.onpause=()=>{
   bar.classList.add("show");
 };
 
-/* ===== شريط التقدم ===== */
 progress.onclick=e=>{
   if(isIntro) return;
   const r=progress.getBoundingClientRect();
@@ -276,7 +265,6 @@ progress.onclick=e=>{
   v.currentTime=p*v.duration;
 };
 
-/* ===== إخفاء تلقائي ===== */
 let uiTimer;
 function showUI(){
   if(isIntro) return;
