@@ -1,74 +1,50 @@
-
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
 <title>Smart TV Player</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
-html,body{
-  margin:0;width:100%;height:100%;
-  background:transparent;overflow:hidden;
-  font-family:'Poppins',system-ui,Arial;
-}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden;font-family:'Poppins',system-ui,Arial}
 #app{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
-#videoWrap{position:relative;aspect-ratio:16/9;max-width:100%;max-height:100%;background:#000;overflow:hidden}
 video{width:100%;height:100%;object-fit:contain;background:#000}
 
-#clickPlay{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(135deg,rgba(20,160,80,.85),rgba(10,120,60,.85));
-  color:#fff;font-size:32px;font-weight:700;cursor:pointer;z-index:5
+#videoWrap{position:relative;aspect-ratio:16/9;max-width:100%;max-height:100%;background:#000;overflow:hidden}
+@media (max-width:768px){
+  #videoWrap{width:100%;height:100%;aspect-ratio:auto;max-width:100vw;max-height:100vh}
 }
-#clickPlay span{
-  display:flex;align-items:center;gap:16px;
-  padding:22px 48px;border-radius:60px;
-  background:linear-gradient(135deg,#1db954,#18a84a)
-}
-#clickPlay span::before{content:"▶";font-size:34px}
 
-#centerIcon{
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  font-size:140px;color:#fff;
-  opacity:0;pointer-events:none;
-  transition:.3s;
-}
+#clickPlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(20,160,80,.9),rgba(10,120,60,.9));color:#fff;font-size:22px;font-weight:700;cursor:pointer;z-index:5}
+#clickPlay span{display:flex;align-items:center;gap:14px;padding:18px 36px;border-radius:60px;background:linear-gradient(135deg,#1db954,#18a84a)}
+#clickPlay span::before{content:"▶";font-size:26px}
+
+#centerIcon{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:120px;color:#fff;opacity:0;pointer-events:none;transition:.25s}
 #centerIcon.show{opacity:.85}
+@media (max-width:768px){#centerIcon{font-size:88px}}
 
-#loader{
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  opacity:0;pointer-events:none;
-  transition:.3s;
-}
+#loader{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.25s}
 #loader.show{opacity:1}
-.spinner{
-  width:64px;height:64px;border-radius:50%;
-  border:6px solid rgba(255,255,255,.15);
-  border-top:6px solid #1db954;
-  animation:spin 1s linear infinite
-}
+.spinner{width:56px;height:56px;border-radius:50%;border:6px solid rgba(255,255,255,.15);border-top:6px solid #1db954;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-#bar{
-  position:absolute;left:4%;right:4%;bottom:4%;
-  padding:18px 28px;border-radius:40px;
-  background:rgba(15,15,15,.75);
-  display:none;align-items:center;gap:18px;
-  opacity:0;transform:translateY(30px);transition:.3s
-}
+#bar{position:absolute;left:4%;right:4%;bottom:4%;padding:16px 22px;border-radius:36px;background:rgba(15,15,15,.78);display:none;align-items:center;gap:14px;opacity:0;transform:translateY(20px);transition:.25s}
 #bar.show{opacity:1;transform:translateY(0)}
-.btn{width:56px;height:56px;border-radius:50%;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer}
-#progress{flex:1;height:8px;background:#222;border-radius:20px;overflow:hidden;position:relative;cursor:pointer}
+@media (max-width:768px){#bar{left:3%;right:3%;bottom:3%;padding:14px 16px}}
+
+.btn{width:52px;height:52px;border-radius:50%;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer}
+@media (max-width:768px){.btn{width:46px;height:46px;font-size:20px}}
+
+#progress{flex:1;height:10px;background:#222;border-radius:20px;overflow:hidden;position:relative;touch-action:none}
 #buffer,#played{position:absolute;top:0;left:0;height:100%}
 #buffer{background:rgba(255,255,255,.25)}
 #played{background:linear-gradient(90deg,#1db954,#1ed760)}
 #thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:#1ed760}
-#time{color:#eee;font-size:14px;min-width:140px;text-align:center}
+#time{color:#eee;font-size:13px;min-width:120px;text-align:center}
+@media (max-width:768px){#time{display:none}}
 </style>
 </head>
 
@@ -76,11 +52,9 @@ video{width:100%;height:100%;object-fit:contain;background:#000}
 <div id="app">
   <div id="videoWrap">
     <video id="video" playsinline></video>
-
-    <div id="clickPlay"><span>CLICK HERE TO PLAY</span></div>
+    <div id="clickPlay"><span>CLICK TO PLAY</span></div>
     <div id="centerIcon">▶</div>
     <div id="loader"><div class="spinner"></div></div>
-
     <div id="bar">
       <div class="btn" id="play">▶</div>
       <div id="progress">
@@ -112,181 +86,65 @@ const clickPlay=document.getElementById("clickPlay");
 const centerIcon=document.getElementById("centerIcon");
 const wrap=document.getElementById("videoWrap");
 
-let isIntro=true,started=false,hls=null;
+let isIntro=true,started=false,hls=null,dragging=false;
 
 v.src=INTRO_SRC;
 
-clickPlay.onclick=()=>{
-  if(started)return;
-  started=true;
-  clickPlay.style.display="none";
-  v.play();
-};
-
+clickPlay.onclick=()=>{if(started)return;started=true;clickPlay.style.display="none";v.play()};
 v.addEventListener("pause",()=>{if(isIntro)v.play()});
 v.addEventListener("seeking",()=>{if(isIntro)v.currentTime=0});
-
-v.addEventListener("ended",()=>{
-  if(!isIntro)return;
-  isIntro=false;
-  loadMain();
-});
+v.addEventListener("ended",()=>{if(isIntro){isIntro=false;loadMain()}});
 
 function loadMain(){
   loader.classList.add("show");
   bar.style.display="flex";
-  if(hls){hls.destroy();hls=null;}
+  if(hls){hls.destroy();hls=null}
   if(Hls.isSupported()){
     hls=new Hls();
     hls.loadSource(MAIN_SRC);
     hls.attachMedia(v);
     hls.on(Hls.Events.MANIFEST_PARSED,()=>v.play());
-  }else{
-    v.src=MAIN_SRC;
-    v.play();
-  }
+  }else{v.src=MAIN_SRC;v.play()}
 }
 
 v.addEventListener("canplay",()=>loader.classList.remove("show"));
 v.addEventListener("playing",()=>loader.classList.remove("show"));
 v.addEventListener("waiting",()=>{if(!isIntro)loader.classList.add("show")});
 
-function togglePlay(){
-  if(isIntro)return;
-  v.paused?v.play():v.pause();
-}
-v.onclick=togglePlay;
-playBtn.onclick=togglePlay;
+function togglePlay(){if(!isIntro)(v.paused?v.play():v.pause())}
+v.onclick=togglePlay;playBtn.onclick=togglePlay;
 
-v.addEventListener("play",()=>{
-  playBtn.textContent="⏸";
-  centerIcon.classList.remove("show");
-  showUI();
-});
-v.addEventListener("pause",()=>{
-  if(isIntro)return;
-  playBtn.textContent="▶";
-  centerIcon.classList.add("show");
-  bar.classList.add("show");
-});
+v.addEventListener("play",()=>{playBtn.textContent="⏸";centerIcon.classList.remove("show");showUI()});
+v.addEventListener("pause",()=>{if(!isIntro){playBtn.textContent="▶";centerIcon.classList.add("show");bar.classList.add("show")}});
 
-function fmt(t){
-  if(!t||isNaN(t))return"00:00";
-  return String(Math.floor(t/60)).padStart(2,"0")+":"+String(Math.floor(t%60)).padStart(2,"0");
-}
+function fmt(t){if(!t||isNaN(t))return"00:00";return String(Math.floor(t/60)).padStart(2,"0")+":"+String(Math.floor(t%60)).padStart(2,"0")}
 
-v.addEventListener("timeupdate",()=>{
-  if(isIntro||!v.duration)return;
-  const p=(v.currentTime/v.duration)*100;
-  played.style.width=p+"%";
-  thumb.style.left=p+"%";
-  timeEl.textContent=`${fmt(v.currentTime)} / ${fmt(v.duration)}`;
-});
+v.addEventListener("timeupdate",()=>{if(isIntro||!v.duration)return;const p=(v.currentTime/v.duration)*100;played.style.width=p+"%";thumb.style.left=p+"%";timeEl.textContent=`${fmt(v.currentTime)} / ${fmt(v.duration)}`});
+v.addEventListener("progress",()=>{if(isIntro||!v.duration||!v.buffered.length)return;buffer.style.width=(v.buffered.end(v.buffered.length-1)/v.duration*100)+"%"});
 
-v.addEventListener("progress",()=>{
-  if(isIntro||!v.duration||!v.buffered.length)return;
-  buffer.style.width=(v.buffered.end(v.buffered.length-1)/v.duration*100)+"%";
-});
+function seekByX(x){const r=progress.getBoundingClientRect();v.currentTime=Math.min(Math.max(((x-r.left)/r.width)*v.duration,0),v.duration)}
+progress.addEventListener("pointerdown",e=>{if(isIntro)return;dragging=true;seekByX(e.clientX)});
+window.addEventListener("pointermove",e=>{if(dragging)seekByX(e.clientX)});
+window.addEventListener("pointerup",()=>dragging=false);
 
-progress.onclick=e=>{
-  if(isIntro)return;
-  const r=progress.getBoundingClientRect();
-  v.currentTime=((e.clientX-r.left)/r.width)*v.duration;
+fsBtn.onclick=async ()=>{
+  if(!document.fullscreenElement){
+    await wrap.requestFullscreen();
+    if(screen.orientation&&screen.orientation.lock){try{await screen.orientation.lock("landscape")}catch(e){}}
+  }else{
+    if(screen.orientation&&screen.orientation.unlock){try{screen.orientation.unlock()}catch(e){}}
+    document.exitFullscreen();
+  }
 };
 
-fsBtn.onclick=()=>document.fullscreenElement?document.exitFullscreen():wrap.requestFullscreen();
-
-/* اختصارات الكيبورد (للفيديو الثاني فقط) */
-document.addEventListener("keydown",e=>{
-  if(isIntro)return;
-
-  switch(e.key){
-    case " ":
-    case "k":
-      e.preventDefault();
-      togglePlay();
-      break;
-    case "ArrowRight":
-      v.currentTime=Math.min(v.currentTime+10,v.duration);
-      break;
-    case "ArrowLeft":
-      v.currentTime=Math.max(v.currentTime-10,0);
-      break;
-    case "f":
-      fsBtn.onclick();
-      break;
-    case "m":
-      v.muted=!v.muted;
-      break;
-    case "ArrowUp":
-      v.volume=Math.min(v.volume+0.05,1);
-      break;
-    case "ArrowDown":
-      v.volume=Math.max(v.volume-0.05,0);
-      break;
-  }
-});
-
 let uiTimer;
-function showUI(){
-  bar.classList.add("show");
-  clearTimeout(uiTimer);
-  uiTimer=setTimeout(()=>{if(!v.paused)bar.classList.remove("show")},3000);
-}
+function showUI(){bar.classList.add("show");clearTimeout(uiTimer);uiTimer=setTimeout(()=>{if(!v.paused)bar.classList.remove("show")},2500)}
 document.addEventListener("mousemove",showUI);
+document.addEventListener("touchstart",showUI,{passive:true});
 </script>
-
 <script>
-/* ===== منع كليك يمين ===== */
-document.addEventListener('contextmenu', function(e) {
-  e.preventDefault();
-});
-
-/* ===== منع اختصارات الكيبورد ===== */
-document.addEventListener('keydown', function(e) {
-
-  // F12
-  if (e.key === "F12") {
-    e.preventDefault();
-  }
-
-  // Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+Shift+C
-  if (e.ctrlKey && e.shiftKey && 
-     (e.key === "I" || e.key === "J" || e.key === "C")) {
-    e.preventDefault();
-  }
-
-  // Ctrl+U (عرض المصدر)
-  if (e.ctrlKey && e.key === "U") {
-    e.preventDefault();
-  }
-
-  // Ctrl+S (حفظ الصفحة)
-  if (e.ctrlKey && e.key === "S") {
-    e.preventDefault();
-  }
-
-  // Ctrl+P (طباعة)
-  if (e.ctrlKey && e.key === "P") {
-    e.preventDefault();
-  }
-
-});
-
-/* ===== كشف فتح DevTools (تقريبي) ===== */
-(function() {
-  const threshold = 160;
-  setInterval(function() {
-    if (
-      window.outerWidth - window.innerWidth > threshold ||
-      window.outerHeight - window.innerHeight > threshold
-    ) {
-      document.body.innerHTML = "";
-    }
-  }, 500);
-})();
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('keydown',e=>{if(e.key==="F12")e.preventDefault();});
 </script>
-
-
 </body>
 </html>
