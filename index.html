@@ -4,57 +4,72 @@
 <meta charset="UTF-8">
 <title>Smart TV Player</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
 html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  background:transparent;
-  overflow:hidden;
-  font-family:system-ui,Arial;
+  margin:0;width:100%;height:100%;
+  background:transparent;overflow:hidden;
+  font-family:'Poppins',system-ui,Arial;
 }
 #app{
-  width:100%;
-  height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:transparent;
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
 }
-
-/* ===== حاوية الفيديو (حسب أبعاد الفيديو) ===== */
 #videoWrap{
   position:relative;
-  aspect-ratio:16 / 9;
-  max-width:100%;
-  max-height:100%;
-  width:auto;
-  height:auto;
+  aspect-ratio:16/9;
+  max-width:100%;max-height:100%;
   background:#000;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
 }
-
 video{
-  width:100%;
-  height:100%;
+  width:100%;height:100%;
   object-fit:contain;
   background:#000;
 }
 
-/* ===== Loader ===== */
-#loader{
+/* ===== CLICK TO PLAY (محسّن) ===== */
+#clickPlay{
   position:absolute;
   inset:0;
   display:flex;
   align-items:center;
   justify-content:center;
-  pointer-events:none;
-  opacity:0;
-  transition:.3s;
+  background:linear-gradient(135deg,rgba(20,160,80,.85),rgba(10,120,60,.85));
+  backdrop-filter:blur(10px);
+  color:#fff;
+  font-size:32px;
+  font-weight:700;
+  letter-spacing:1.5px;
+  cursor:pointer;
+  z-index:5;
+}
+#clickPlay span{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:22px 48px;
+  border-radius:60px;
+  background:linear-gradient(135deg,#1db954,#18a84a);
+  box-shadow:0 0 40px rgba(29,185,84,.7),
+             inset 0 0 20px rgba(255,255,255,.15);
+}
+#clickPlay span::before{
+  content:"▶";
+  font-size:34px;
+}
+
+/* ===== Loader ===== */
+#loader{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;opacity:0;transition:.3s;
 }
 #loader.show{opacity:1}
-
 .spinner{
   width:64px;height:64px;
   border:6px solid rgba(255,255,255,.15);
@@ -64,83 +79,55 @@ video{
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ===== شريط التحكم ===== */
+/* ===== Controls ===== */
 #bar{
   position:absolute;
-  left:4%;
-  right:4%;
-  bottom:4%;
-  padding:18px 26px;
-  border-radius:30px;
-  background:rgba(20,20,20,.7);
-  backdrop-filter:blur(16px);
-  display:none;
-  align-items:center;
-  gap:18px;
-  opacity:0;
-  transform:translateY(30px);
+  left:4%;right:4%;bottom:4%;
+  padding:18px 28px;
+  border-radius:40px;
+  background:rgba(15,15,15,.75);
+  backdrop-filter:blur(18px);
+  display:none;align-items:center;gap:18px;
+  opacity:0;transform:translateY(30px);
   transition:.35s ease;
 }
 #bar.show{opacity:1;transform:translateY(0)}
-
 .btn{
-  width:58px;height:58px;
-  border-radius:50%;
-  background:#111;
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,#1c1c1c,#0f0f0f);
   color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:26px;
-  cursor:pointer;
-  transition:.25s;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;cursor:pointer;
+  box-shadow:0 6px 18px rgba(0,0,0,.5);
 }
 .btn:hover{transform:scale(1.12)}
-
-/* ===== شريط التقدم ===== */
 #progress{
-  flex:1;height:8px;
-  background:#222;
-  border-radius:20px;
-  overflow:hidden;
-  position:relative;
-  cursor:pointer;
+  flex:1;height:8px;background:#222;
+  border-radius:20px;overflow:hidden;
+  position:relative;cursor:pointer;
 }
-#buffer,#played{
-  position:absolute;top:0;left:0;height:100%;
-}
+#buffer,#played{position:absolute;top:0;left:0;height:100%}
 #buffer{background:rgba(255,255,255,.25)}
-#played{background:#1db954}
-
+#played{background:linear-gradient(90deg,#1db954,#1ed760)}
 #thumb{
-  position:absolute;
-  top:50%;
+  position:absolute;top:50%;
   transform:translate(-50%,-50%);
-  width:18px;height:18px;
-  border-radius:50%;
-  background:#1db954;
+  width:18px;height:18px;border-radius:50%;
+  background:#1ed760;
+  box-shadow:0 0 10px rgba(30,215,96,.9);
 }
-
-/* ===== الوقت ===== */
 #time{
   color:#eee;
-  font-size:15px;
+  font-size:14px;
+  font-weight:600;
   min-width:140px;
   text-align:center;
 }
-
-/* ===== أيقونة الإيقاف ===== */
 #pauseIcon{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:150px;
-  color:#fff;
-  opacity:0;
-  pointer-events:none;
-  transition:.3s;
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:150px;color:#fff;
+  opacity:0;pointer-events:none;transition:.3s;
 }
 #pauseIcon.show{opacity:.9}
 </style>
@@ -151,11 +138,9 @@ video{
   <div id="videoWrap">
     <video id="video" playsinline></video>
 
+    <div id="clickPlay"><span>CLICK HERE TO PLAY</span></div>
     <div id="pauseIcon">▶</div>
-
-    <div id="loader">
-      <div class="spinner"></div>
-    </div>
+    <div id="loader"><div class="spinner"></div></div>
 
     <div id="bar">
       <div class="btn" id="play">▶</div>
@@ -174,7 +159,6 @@ video{
 const INTRO_SRC="https://a7md08.github.io/Files/Web/Netflix_New_Logo_Animation_2019_1080p.mp4";
 const MAIN_SRC="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
 
-const wrap=document.getElementById("videoWrap");
 const v=document.getElementById("video");
 const bar=document.getElementById("bar");
 const playBtn=document.getElementById("play");
@@ -186,14 +170,19 @@ const timeEl=document.getElementById("time");
 const pauseIcon=document.getElementById("pauseIcon");
 const progress=document.getElementById("progress");
 const loader=document.getElementById("loader");
+const clickPlay=document.getElementById("clickPlay");
+const wrap=document.getElementById("videoWrap");
 
-let isIntro=true;
-let hls=null;
+let isIntro=true,hls=null,started=false;
 
 v.src=INTRO_SRC;
-v.play();
 
-v.addEventListener("pause",()=>{ if(isIntro) v.play(); });
+clickPlay.onclick=()=>{
+  if(started)return;
+  started=true;
+  clickPlay.style.display="none";
+  v.play();
+};
 
 v.onended=()=>{
   if(isIntro){
@@ -215,64 +204,47 @@ function loadMain(){
   v.play();
 }
 
-v.addEventListener("waiting",()=>{ if(!isIntro) loader.classList.add("show"); });
-v.addEventListener("playing",()=>{ loader.classList.remove("show"); });
+v.addEventListener("waiting",()=>{if(!isIntro)loader.classList.add("show");});
+v.addEventListener("playing",()=>{loader.classList.remove("show");});
 
 function fmt(t){
-  if(!t||isNaN(t)) return "00:00";
+  if(!t||isNaN(t))return"00:00";
   return String(Math.floor(t/60)).padStart(2,"0")+":"+String(Math.floor(t%60)).padStart(2,"0");
 }
 
 v.ontimeupdate=()=>{
-  if(isIntro) return;
+  if(isIntro)return;
   const p=(v.currentTime/v.duration)*100;
   played.style.width=p+"%";
   thumb.style.left=p+"%";
   timeEl.textContent=`${fmt(v.currentTime)} / ${fmt(v.duration)}`;
 };
-
 v.onprogress=()=>{
-  if(v.buffered.length && !isIntro){
-    const end=v.buffered.end(v.buffered.length-1);
-    buffer.style.width=(end/v.duration*100)+"%";
+  if(v.buffered.length&&!isIntro){
+    buffer.style.width=(v.buffered.end(v.buffered.length-1)/v.duration*100)+"%";
   }
 };
 
 playBtn.onclick=()=>v.paused?v.play():v.pause();
 v.onclick=()=>v.paused?v.play():v.pause();
 
-fsBtn.onclick=()=>{
-  document.fullscreenElement
-    ? document.exitFullscreen()
-    : wrap.requestFullscreen();
-};
+fsBtn.onclick=()=>document.fullscreenElement?document.exitFullscreen():wrap.requestFullscreen();
 
-v.onplay=()=>{
-  playBtn.textContent="⏸";
-  pauseIcon.classList.remove("show");
-  showUI();
-};
-v.onpause=()=>{
-  playBtn.textContent="▶";
-  pauseIcon.classList.add("show");
-  bar.classList.add("show");
-};
+v.onplay=()=>{playBtn.textContent="⏸";pauseIcon.classList.remove("show");showUI();};
+v.onpause=()=>{playBtn.textContent="▶";pauseIcon.classList.add("show");bar.classList.add("show");};
 
 progress.onclick=e=>{
-  if(isIntro) return;
+  if(isIntro)return;
   const r=progress.getBoundingClientRect();
-  const p=(e.clientX-r.left)/r.width;
-  v.currentTime=p*v.duration;
+  v.currentTime=((e.clientX-r.left)/r.width)*v.duration;
 };
 
 let uiTimer;
 function showUI(){
-  if(isIntro) return;
+  if(isIntro)return;
   bar.classList.add("show");
   clearTimeout(uiTimer);
-  uiTimer=setTimeout(()=>{
-    if(!v.paused) bar.classList.remove("show");
-  },3000);
+  uiTimer=setTimeout(()=>{if(!v.paused)bar.classList.remove("show");},3000);
 }
 document.addEventListener("mousemove",showUI);
 </script>
